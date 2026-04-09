@@ -44,6 +44,8 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
+	// SUPER COMMENT TIME
+
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
