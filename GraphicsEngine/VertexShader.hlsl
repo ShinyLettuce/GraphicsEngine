@@ -1,4 +1,17 @@
-float4 main( float4 pos : POSITION ) : SV_POSITION
+struct VertexInputType
 {
-	return pos;
+    float4 position : POSITION;
+    float4 color : COLOR;
+};
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+PixelInputType main(VertexInputType input)
+{
+    PixelInputType output;
+    output.position = input.position;
+    output.color = input.color;
+    return output;
 }
