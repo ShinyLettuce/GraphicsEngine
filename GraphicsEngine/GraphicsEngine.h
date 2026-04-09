@@ -1,4 +1,7 @@
 #pragma once
+
+#include "Triangle.h"
+
 #include <wrl/client.h>
 
 using Microsoft::WRL::ComPtr;
@@ -20,4 +23,6 @@ private:
 	ComPtr<ID3D11DeviceContext> myContext;
 	ComPtr<IDXGISwapChain> mySwapChain;
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
+
+	Triangle myTriangle;
 };

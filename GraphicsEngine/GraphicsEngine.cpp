@@ -67,13 +67,20 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	viewport.MaxDepth = 1.0f;
 	myContext->RSSetViewports(1, &viewport);
 
+	if (!myTriangle.Initialize(myDevice.Get()))
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void GraphicsEngine::Render()
 {
-
 	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f}; // RGBA
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
+
+	myTriangle.Render(myContext.Get());
+
 	mySwapChain->Present(1, 0);
 }
