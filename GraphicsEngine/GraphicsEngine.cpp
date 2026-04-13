@@ -77,6 +77,17 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
+	float squarePos[2] = { 1000.f, 200.f };
+
+	squarePos[0] = (squarePos[0] * 2 / static_cast<float>(textureDesc.Width)) - 1;
+	squarePos[1] = (squarePos[1] * 2 / static_cast<float>(textureDesc.Height)) - 1;
+
+	float squareColor[3] = { 0.9f, 0.0f, 0.0f };
+
+	if (!mySquare.Initialize(myDevice.Get(), squarePos, squareColor))
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -87,6 +98,7 @@ void GraphicsEngine::Render()
 
 	myTriangle.Render(myContext.Get());
 	myObject.Render(myContext.Get());
+	mySquare.Render(myContext.Get());
 
 	mySwapChain->Present(1, 0);
 }

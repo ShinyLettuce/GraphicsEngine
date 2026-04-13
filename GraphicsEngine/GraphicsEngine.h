@@ -2,6 +2,7 @@
 
 #include "Triangle.h"
 #include "Object.h"
+#include "InsaneShape.h"
 
 #include <wrl/client.h>
 
@@ -26,5 +27,6 @@ private:
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
 
 	Triangle myTriangle;
+	InsaneShape mySquare;
 	Object myObject;
 };
