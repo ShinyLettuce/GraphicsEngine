@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Triangle.h"
+#include "Object.h"
 
 #include <wrl/client.h>
 
@@ -25,4 +26,5 @@ private:
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
 
 	Triangle myTriangle;
+	Object myObject;
 };

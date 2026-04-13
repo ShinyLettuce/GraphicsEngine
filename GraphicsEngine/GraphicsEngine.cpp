@@ -72,6 +72,11 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
+	if (!myObject.Initialize(myDevice.Get()))
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -81,6 +86,7 @@ void GraphicsEngine::Render()
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 
 	myTriangle.Render(myContext.Get());
+	myObject.Render(myContext.Get());
 
 	mySwapChain->Present(1, 0);
 }

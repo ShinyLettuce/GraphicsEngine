@@ -1,4 +1,4 @@
-#include "Triangle.h"
+#include "Object.h"
 
 #include <d3d11.h>
 #include <fstream>
@@ -9,23 +9,29 @@ struct alignas(16) Vertex
 	float r, g, b, a;
 };
 
-Triangle::Triangle() = default;
-Triangle::~Triangle() = default;
+Object::Object() = default;
+Object::~Object() = default;
 
-bool Triangle::Initialize(ID3D11Device* aDevice)
+bool Object::Initialize(ID3D11Device* aDevice)
 {
 	HRESULT result;
 
-	Vertex vertices[3]
+	Vertex vertices[6]
 	{
-		{ -0.2f, -0.2f, 0, 1, 1, 0, 0, 1},
-		{ 0.0f, 0.2f, 0, 1, 0, 1, 0, 1},
-		{ 0.2f, -0.2f, 0, 1, 0, 0, 1, 1}
+		{ -0.5f, 0.0f, 0, 1, 1, 0, 0, 1},
+		{ -0.6f, 0.4f, 0, 1, 0, 1, 0, 1},
+		{ -0.4f, 0.4f, 0, 1, 1, 1, 0, 1},
+		{ -0.9f, 0.0f, 0, 1, 0, 0, 1, 1},
+		{ -0.1f, 0.0f, 0, 1, 1, 0, 1, 1},
+		{ -0.5f, 0.9f, 0, 1, 0, 1, 1, 1},
 	};
 
-	unsigned int indices[3]
+	unsigned int indices[12]
 	{
-		0, 1, 2
+		0, 1, 2,
+		0, 3, 1,
+		0, 2, 4,
+		1, 5, 2
 	};
 
 	{
@@ -77,7 +83,7 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 		vsFile.close();
 
 		std::ifstream psFile;
-		psFile.open("PixelShader.cso", std::ios::binary);
+		psFile.open("CrazyPixelShader.cso", std::ios::binary);
 		std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
 		result = aDevice->CreatePixelShader(psData.data(), psData.size(), nullptr, &myPixelShader);
 
@@ -106,7 +112,7 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 	return true;
 }
 
-void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
+void Object::Render(ID3D11DeviceContext* aDeviceContext)
 {
 	aDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	aDeviceContext->IASetInputLayout(myInputLayout.Get());
@@ -116,5 +122,5 @@ void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 	aDeviceContext->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	aDeviceContext->VSSetShader(myVertexShader.Get(), nullptr, 0);
 	aDeviceContext->PSSetShader(myPixelShader.Get(), nullptr, 0);
-	aDeviceContext->DrawIndexed(3, 0, 0);
+	aDeviceContext->DrawIndexed(12, 0, 0);
 }
