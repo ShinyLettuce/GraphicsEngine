@@ -1,3 +1,13 @@
+cbuffer frameBuffer : register(b0)
+{
+    float4x4 worldToClipMatrix;
+};
+
+cbuffer objectBuffer : register(b1)
+{
+    float4x4 modelToWorldMatrix;
+};
+
 struct VertexInputType
 {
     float4 position : POSITION;
@@ -13,7 +23,7 @@ struct PixelInputType
 PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
-    output.position = input.position;
+    output.position = mul(worldToClipMatrix, input.position);
     output.color = input.color;
     return output;
 }

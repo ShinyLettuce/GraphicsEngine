@@ -1,5 +1,6 @@
 #pragma once
 #include <wrl/client.h>
+#include "BufferData.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -19,6 +20,11 @@ public:
 	bool Initialize(ID3D11Device* aDevice);
 	void Render(ID3D11DeviceContext* aDeviceContext);
 private:
+	BufferData::FrameBufferData myCamera;
+
+	ComPtr<ID3D11Buffer> myFrameBuffer;
+	ComPtr<ID3D11Buffer> myObjectBuffer;
+
 	ComPtr<ID3D11Buffer> myVertexBuffer;
 	ComPtr<ID3D11Buffer> myIndexBuffer;
 	ComPtr<ID3D11VertexShader> myVertexShader;
