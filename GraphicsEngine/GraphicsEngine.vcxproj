@@ -146,6 +146,8 @@
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BufferData.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CoolerWindows.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="Object.h" />

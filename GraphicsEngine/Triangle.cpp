@@ -3,6 +3,8 @@
 #include <d3d11.h>
 #include <fstream>
 
+#include <cmath>
+
 struct alignas(16) Vertex
 {
 	float x, y, z, w;
@@ -26,6 +28,20 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 	unsigned int indices[3]
 	{
 		0, 1, 2
+	};
+
+	float farClip = 10.f;
+	float nearClip = 0.1f;
+	float Yfov = 2.44f;
+
+	float zoomY = 1.f / tan(Yfov * 0.5f);
+	float zoomX = zoomY / 0.5625f;
+
+	myCamera = {
+		zoomX, 0.f, 0.f, 0.f,
+		0.f, zoomY, 0.f, 0.f,
+		0.f, 0.f, -(farClip + nearClip) / (farClip - nearClip), -(2.f * nearClip * farClip) / (farClip - nearClip),
+		0.f, 0.f, 10.f, 0.f
 	};
 
 	{
@@ -56,6 +72,25 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 
 		result = aDevice->CreateBuffer(&indexBufferDesc, &indexData, &myIndexBuffer);
 
+		if (FAILED(result))
+		{
+			return false;
+		}
+	}
+
+	{
+		D3D11_BUFFER_DESC bufferDescription{ 0 };
+		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bufferDescription.ByteWidth = sizeof(BufferData::FrameBufferData);
+		result = aDevice->CreateBuffer(&bufferDescription, nullptr, &myFrameBuffer);
+		if (FAILED(result))
+		{
+			return false;
+		}
+		bufferDescription.ByteWidth = sizeof(BufferData::ObjectBufferData);
+		result = aDevice->CreateBuffer(&bufferDescription, nullptr, &myObjectBuffer);
 		if (FAILED(result))
 		{
 			return false;
@@ -108,6 +143,36 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 
 void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 {
+	{
+		//set up camera on the GPU
+
+		BufferData::FrameBufferData frameBufferData = {};
+		frameBufferData = myCamera;
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		aDeviceContext->Map(myFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &frameBufferData, sizeof(BufferData::FrameBufferData));
+		aDeviceContext->Unmap(myFrameBuffer.Get(), 0);
+		aDeviceContext->VSSetConstantBuffers(0, 1, myFrameBuffer.GetAddressOf());
+	}
+
+	{
+		//Prepare ObjectBufferData, set up transform of the object on the GPU
+		BufferData::ObjectBufferData objectBufferData = {};
+		objectBufferData = {1.f, 0.f, 0.f, 0.f,
+							0.f, 1.f, 0.f, 0.f,
+							0.f, 0.f, 1.f, 0.f,
+							0.f, 0.f, 0.f, 1.f};
+
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		aDeviceContext->Map(myObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &objectBufferData, sizeof(BufferData::ObjectBufferData));
+		aDeviceContext->Unmap(myObjectBuffer.Get(), 0);
+
+		aDeviceContext->VSSetConstantBuffers(1, 1, myObjectBuffer.GetAddressOf());
+	}
+
+	//Code to render mesh, REPLACE
+
 	aDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	aDeviceContext->IASetInputLayout(myInputLayout.Get());
 	unsigned int stride = sizeof(Vertex);
