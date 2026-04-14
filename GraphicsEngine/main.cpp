@@ -1,6 +1,8 @@
 #include "CoolerWindows.h"
 #include "GraphicsEngine.h"
 
+#include "ObjLoader.h"
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -21,6 +23,38 @@ int APIENTRY wWinMain(
 	_In_ int nCmdShow
 )
 {
+	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.obj");
+
+	OutputDebugStringA("\nVERTICES!!!\n");
+
+	for (ObjLoader::ObjVector3 vertex : obj.vertices)
+	{
+		std::stringstream ss;
+		ss << "(" << vertex.x << ", " << vertex.y << ", " << vertex.z << ")" << "\n";
+
+		OutputDebugStringA(ss.str().data());
+	}
+
+	OutputDebugStringA("\nNORMALS!!!\n");
+
+	for (ObjLoader::ObjVector3 normal : obj.normals)
+	{
+		std::stringstream ss;
+		ss << "(" << normal.x << ", " << normal.y << ", " << normal.z << ")" << "\n";
+
+		OutputDebugStringA(ss.str().data());
+	}
+
+	OutputDebugStringA("\nINDICES!!!\n");
+
+	for (ObjLoader::ObjIndex index : obj.indices)
+	{
+		std::stringstream ss;
+		ss << "(" << index << ")" << "\n";
+
+		OutputDebugStringA(ss.str().data());
+	}
+
 	WNDCLASSEXW wcex = {};
 	wcex.cbSize = sizeof wcex;
 	wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;

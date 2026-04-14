@@ -150,6 +150,7 @@
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="InsaneShape.h" />
+    <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <ItemGroup>
