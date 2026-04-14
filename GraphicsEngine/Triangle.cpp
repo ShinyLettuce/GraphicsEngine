@@ -35,14 +35,21 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 	float Yfov = 2.44f;
 
 	float zoomY = 1.f / tan(Yfov * 0.5f);
-	float zoomX = zoomY / 0.5625f;
+	float zoomX = zoomY / 1.77777f;
 
 	myCamera = {
 		zoomX, 0.f, 0.f, 0.f,
 		0.f, zoomY, 0.f, 0.f,
 		0.f, 0.f, -(farClip + nearClip) / (farClip - nearClip), -(2.f * nearClip * farClip) / (farClip - nearClip),
-		0.f, 0.f, 10.f, 0.f
+		0.f, 0.f, 0.f, 0.f
 	};
+
+	/*myCamera = {
+	1.f, 0.f, 0.f, 0.f,
+	0.f, 2.f, 0.f, 0.f,
+	0.f, 0.f, 1.f, 0.f,
+	0.f, 0.f, 0.f, 1.f
+	};*/
 
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
