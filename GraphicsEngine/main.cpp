@@ -23,7 +23,7 @@ int APIENTRY wWinMain(
 	_In_ int nCmdShow
 )
 {
-	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.obj");
+	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
 
 	OutputDebugStringA("\nVERTICES!!!\n");
 
