@@ -17,6 +17,7 @@ PixelOutput main(PixelInputType input)
     result.color.rg = 0;
     result.color.b = max(result.color.b, sin((input.position.y + input.position.x + 100.f) * 0.2f) * 0.1f);
     result.color.b = max(result.color.b, sin((input.position.y - input.position.x - 100.f) * 0.2f) * 0.1f);
+    result.color.a = 1.0f;
 
     return result;
 }

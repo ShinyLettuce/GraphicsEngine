@@ -20,9 +20,9 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 
 	Vertex vertices[3]
 	{
-		{ -0.2f, -0.2f, 0, 1, 1, 0, 0, 1},
-		{ 0.0f, 0.2f, 0, 1, 0, 1, 0, 1},
-		{ 0.2f, -0.2f, 0, 1, 0, 0, 1, 1}
+		{ -200.f, -200.f, 100.f, 1.f, 1, 0, 0, 1},
+		{ 0.0f, 200.f, 100.f, 1.f, 0, 1, 0, 1},
+		{ 200.f, -200.f, 100.f, 1.f, 0, 0, 1, 1}
 	};
 
 	unsigned int indices[3]
@@ -30,26 +30,22 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 		0, 1, 2
 	};
 
-	float farClip = 10.f;
+	const float pi = 3.1415927f;
+	const float deg2rad = pi / 180.f;
+
+	float farClip = 1000.f;
 	float nearClip = 0.1f;
-	float Yfov = 2.44f;
+	float Yfov = 90 * deg2rad;
 
 	float zoomY = 1.f / tan(Yfov * 0.5f);
-	float zoomX = zoomY / 1.77777f;
+	float zoomX = zoomY * (9.0f / 16.0f);
 
 	myCamera = {
 		zoomX, 0.f, 0.f, 0.f,
 		0.f, zoomY, 0.f, 0.f,
-		0.f, 0.f, -(farClip + nearClip) / (farClip - nearClip), -(2.f * nearClip * farClip) / (farClip - nearClip),
-		0.f, 0.f, 0.f, 0.f
+		0.f, 0.f, (farClip) / (farClip - nearClip), 10.0f,
+		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
 	};
-
-	/*myCamera = {
-	1.f, 0.f, 0.f, 0.f,
-	0.f, 2.f, 0.f, 0.f,
-	0.f, 0.f, 1.f, 0.f,
-	0.f, 0.f, 0.f, 1.f
-	};*/
 
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
