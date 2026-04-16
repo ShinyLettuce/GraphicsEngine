@@ -30,23 +30,6 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 		0, 1, 2
 	};
 
-	const float pi = 3.1415927f;
-	const float deg2rad = pi / 180.f;
-
-	float farClip = 1000.f;
-	float nearClip = 0.1f;
-	float Yfov = 90 * deg2rad;
-
-	float zoomY = 1.f / tan(Yfov * 0.5f);
-	float zoomX = zoomY * (9.0f / 16.0f);
-
-	myCamera = {
-		zoomX, 0.f, 0.f, 0.f,
-		0.f, zoomY, 0.f, 0.f,
-		0.f, 0.f, (farClip) / (farClip - nearClip), 10.0f,
-		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
-	};
-
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
 		vertexBufferDesc.ByteWidth = sizeof vertices;
@@ -150,7 +133,7 @@ void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 		//set up camera on the GPU
 
 		BufferData::FrameBufferData frameBufferData = {};
-		frameBufferData = myCamera;
+		frameBufferData = ; // camaera matrix here;
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		aDeviceContext->Map(myFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 		memcpy(mappedBuffer.pData, &frameBufferData, sizeof(BufferData::FrameBufferData));

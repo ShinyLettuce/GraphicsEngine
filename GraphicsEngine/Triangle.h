@@ -20,8 +20,6 @@ public:
 	bool Initialize(ID3D11Device* aDevice);
 	void Render(ID3D11DeviceContext* aDeviceContext);
 private:
-	BufferData::FrameBufferData myCamera;
-
 	ComPtr<ID3D11Buffer> myFrameBuffer;
 	ComPtr<ID3D11Buffer> myObjectBuffer;
 
