@@ -150,7 +150,7 @@ void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 		//set up camera on the GPU
 
 		BufferData::FrameBufferData frameBufferData = {};
-		frameBufferData = myCamera;
+		frameBufferData = ; // camaera matrix here;
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		aDeviceContext->Map(myFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 		memcpy(mappedBuffer.pData, &frameBufferData, sizeof(BufferData::FrameBufferData));

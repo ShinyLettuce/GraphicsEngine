@@ -7,6 +7,8 @@
 
 #include <cmath>
 
+#include "Vector.h"
+
 #define REPORT_DX_WARNINGS
 
 GraphicsEngine::GraphicsEngine() = default;
@@ -95,6 +97,44 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	float squareColor[3] = { 0.9f, 0.0f, 0.0f };
 
 	return true;
+}
+
+void GraphicsEngine::Update(const CommonUtilities::InputHandler& aInput)
+{
+	Vector3 deltaPos;
+
+	if (aInput.IsKeyDown('W'))
+	{
+		deltaPos.z += 10.f;
+	}
+	if (aInput.IsKeyDown('A'))
+	{
+		deltaPos.x -= 10.f;
+	}
+	if (aInput.IsKeyDown('S'))
+	{
+		deltaPos.z -= 10.f;
+	}
+	if (aInput.IsKeyDown('D'))
+	{
+		deltaPos.x += 10.f;
+	}
+
+	if (aInput.IsKeyDown(VK_SHIFT))
+	{
+		deltaPos.y -= 10.f;
+	}
+	if (aInput.IsKeyDown(VK_SPACE))
+	{
+		deltaPos.y += 10.f;
+	}
+
+	Vector3 CameraPosition = myCamera.GetPosition();
+	CameraPosition.x += deltaPos.x;
+	CameraPosition.y += deltaPos.y;
+	CameraPosition.z += deltaPos.z;
+
+	myCamera.SetPosition3(CameraPosition);
 }
 
 void GraphicsEngine::Render()

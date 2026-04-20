@@ -1,10 +1,14 @@
 #include "CoolerWindows.h"
 #include "GraphicsEngine.h"
+#include "InputHandler.h"
 
 #include "ObjLoader.h"
 
+static CommonUtilities::InputHandler* locInput = nullptr;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	locInput->UpdateEvents(message, wParam, lParam);
 	switch (message)
 	{
 		case WM_DESTROY:
@@ -24,6 +28,8 @@ int APIENTRY wWinMain(
 )
 {
 	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
+	CommonUtilities::InputHandler inputHandler;
+	locInput = &inputHandler;
 
 	OutputDebugStringA("\nVERTICES!!!\n");
 
@@ -96,11 +102,13 @@ int APIENTRY wWinMain(
 			TranslateMessage(&msg);
 			DispatchMessageA(&msg);
 
+			inputHandler.UpdateInput();
+
 			if (msg.message == WM_QUIT)
 			{
 				shouldRun = false;
 			}
-
+			graphicsEngine.Update(inputHandler);
 			graphicsEngine.Render();
 		}
 	}

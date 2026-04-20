@@ -139,7 +139,9 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -153,10 +155,12 @@
     <ClInclude Include="CoolerWindows.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="InsaneShape.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="CrazyPixelShader.hlsl">

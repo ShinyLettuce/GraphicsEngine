@@ -3,6 +3,8 @@
 #include "Triangle.h"
 #include "Object.h"
 #include "InsaneShape.h"
+#include "InputHandler.h"
+#include "Camera.h"
 #include "Model.h"
 
 #include <wrl/client.h>
@@ -20,6 +22,7 @@ public:
 	GraphicsEngine();
 	~GraphicsEngine();
 	bool Initialize(HWND windowHandle);
+	void Update(const CommonUtilities::InputHandler& aInput);
 	void Render();
 private:
 	ComPtr<ID3D11Device> myDevice;
@@ -27,5 +30,9 @@ private:
 	ComPtr<IDXGISwapChain> mySwapChain;
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
 
+	Camera myCamera;
+	Triangle myTriangle;
+	InsaneShape mySquare;
+	Object myObject;
 	Mesh myMesh;
 };
