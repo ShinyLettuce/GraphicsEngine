@@ -72,8 +72,6 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	viewport.MaxDepth = 1.0f;
 	myContext->RSSetViewports(1, &viewport);
 
-	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
-
 	bool success;
 
 	success = myPyramidMesh.Init(myDevice.Get(),
@@ -127,18 +125,51 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			7, 3, 1
 		});
 
-		if (!success)
-		{
-			return false;
-		}
+	if (!success)
+	{
+		return false;
+	}
 
-		float farClip = 1000.f;
-		float nearClip = 0.1f;
-		float Yfov = 90;
-		float aspect = (9.0f / 16.0f);
-		myCamera.Init(farClip, nearClip, Yfov, aspect);
+	Obj::Obj obj = Obj::LoadFromFile("LittleGuy.model");
 
-		return true;
+	std::vector<Mesh::Vertex> vertices;
+	for (const auto& objVertex : obj.vertices)
+	{
+		Mesh::Vertex vertex;
+		vertex.position.x = objVertex.x;
+		vertex.position.y = objVertex.y;
+		vertex.position.z = objVertex.z;
+		vertex.position.w = 1.0f;
+		vertex.color.x = 1.0f;
+		vertex.color.y = 1.0f;
+		vertex.color.z = 1.0f;
+		vertex.color.w = 1.0f;
+
+		vertices.emplace_back(vertex);
+	}
+
+	std::vector<Mesh::Index> indices;
+	for (const auto& objIndex: obj.indices)
+	{
+		Mesh::Index index = objIndex;
+
+		indices.emplace_back(index);
+	}
+
+	success = myLittleGuyMesh.Init(myDevice.Get(), std::move(vertices), std::move(indices));
+
+	if (!success)
+	{
+		return false;
+	}
+
+	float farClip = 1000.f;
+	float nearClip = 0.1f;
+	float Yfov = 90;
+	float aspect = (9.0f / 16.0f);
+	myCamera.Init(farClip, nearClip, Yfov, aspect);
+
+	return true;
 }
 
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
@@ -207,6 +238,7 @@ void GraphicsEngine::Render()
 
 	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, myCamera.GetFrameBufferData());
 	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, myCamera.GetFrameBufferData());
+	myLittleGuyMesh.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, myCamera.GetFrameBufferData());
 
 	mySwapChain->Present(1, 0);
 }

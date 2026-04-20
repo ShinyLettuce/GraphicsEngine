@@ -30,4 +30,5 @@ private:
 	Camera myCamera;
 	Mesh myPyramidMesh;
 	Mesh myCubeMesh;
+	Mesh myLittleGuyMesh;
 };
