@@ -203,10 +203,12 @@ void GraphicsEngine::Render()
 
 	BufferData::FrameBufferData frameBufferData
 	{
-		zoomX, 0.f, 0.f, 0.f,
-		0.f, zoomY, 0.f, 0.f,
-		0.f, 0.f, (farClip) / (farClip - nearClip), 1.f,
-		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
+		{
+			zoomX, 0.f, 0.f, 0.f,
+			0.f, zoomY, 0.f, 0.f,
+			0.f, 0.f, (farClip) / (farClip - nearClip), 1.f,
+			0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
+		}
 	};
 
 	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, myCamera.GetFrameBufferData());
