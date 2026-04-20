@@ -21,21 +21,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE,
-	_In_ LPWSTR,
-	_In_ int nCmdShow
-)
+int main()
 {
-	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
+	Obj::Obj obj = Obj::LoadFromFile("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
 	InputHandler inputHandler;
 	locInput = &inputHandler;
 	Timer timer;
 
 	OutputDebugStringA("\nVERTICES!!!\n");
 
-	for (ObjLoader::ObjVector3 vertex : obj.vertices)
+	for (Obj::ObjVector3 vertex : obj.vertices)
 	{
 		std::stringstream ss;
 		ss << "(" << vertex.x << ", " << vertex.y << ", " << vertex.z << ")" << "\n";
@@ -45,7 +40,7 @@ int APIENTRY wWinMain(
 
 	OutputDebugStringA("\nNORMALS!!!\n");
 
-	for (ObjLoader::ObjVector3 normal : obj.normals)
+	for (Obj::ObjVector3 normal : obj.normals)
 	{
 		std::stringstream ss;
 		ss << "(" << normal.x << ", " << normal.y << ", " << normal.z << ")" << "\n";
@@ -55,13 +50,15 @@ int APIENTRY wWinMain(
 
 	OutputDebugStringA("\nINDICES!!!\n");
 
-	for (ObjLoader::ObjIndex index : obj.indices)
+	for (Obj::ObjIndex index : obj.indices)
 	{
 		std::stringstream ss;
 		ss << "(" << index << ")" << "\n";
 
 		OutputDebugStringA(ss.str().data());
 	}
+
+	HINSTANCE hInstance = GetModuleHandleA(nullptr);
 
 	WNDCLASSEXW wcex = {};
 	wcex.cbSize = sizeof wcex;
@@ -86,7 +83,7 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	ShowWindow(hWnd, nCmdShow);
+	ShowWindow(hWnd, 1);
 	UpdateWindow(hWnd);
 	inputHandler.InitHandle(hWnd);
 

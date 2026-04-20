@@ -5,8 +5,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <numeric>
 
-namespace ObjLoader
+namespace Obj
 {
 	struct ObjVector3
 	{
@@ -29,82 +30,49 @@ namespace ObjLoader
 		std::vector<ObjIndex> indices;
 	};
 
-	inline Obj Load(const char* aFilePath)
+	inline Obj LoadFromFile(const char* aFilePath)
 	{
-		enum LoadState
-		{
-			None,
-			LoadVertex,
-			LoadNormal,
-			LoadFace
-		} loadState{ LoadState::None };
-
 		Obj obj;
 
 		std::ifstream file{ aFilePath };
-		std::string line;
-		std::string element;
 
-		unsigned int elementIndex = 0;
+		if (!file.is_open())
+		{
+			std::cout << "Failed to open .obj file \"" << aFilePath << "\"\n";
+
+			return obj;
+		}
+
+		std::string line;
 
 		while (std::getline(file, line))
 		{
 			std::stringstream stream{ line };
-			while (std::getline(stream, element, ' '))
-			{
-				switch (loadState)
-				{
-					case LoadState::None:
-					{
-						if (element == "v")
-						{
-							loadState = LoadState::LoadVertex;
-							obj.vertices.push_back(ObjVector3{});
-						}
-						else if (element == "vn")
-						{
-							loadState = LoadState::LoadNormal;
-							obj.normals.push_back(ObjVector3{});
-						}
-						else if (element == "f")
-						{
-							loadState = LoadState::LoadFace;
-						}
-						break;
-					}
-					case LoadState::LoadVertex:
-					{		
-						if (elementIndex >= 1 && elementIndex <= 3)
-						{
-							const float f = std::stof(element);
-							obj.vertices.back().elements[elementIndex - 1] = f;
-						}
-						break;
-					}
-					case LoadState::LoadNormal:
-					{			
-						if (elementIndex >= 1 && elementIndex <= 3)
-						{
-							const float f = std::stof(element);
-							obj.normals.back().elements[elementIndex - 1] = f;
-						}
-						break;
-					}
-					case LoadState::LoadFace:
-					{
-						std::string face;
-						std::stringstream stream{ element };
-						std::getline(stream, face, '/');
+			std::string prefix;
+			stream >> prefix;
 
-						ObjIndex index = std::stoi(face);
-						obj.indices.emplace_back(index);
-						break;
-					}
-				}
-				++elementIndex;
+			if (prefix == "v")
+			{
+				ObjVector3 vertex;
+				stream >> vertex.x >> vertex.y >> vertex.z;
+				obj.vertices.emplace_back(vertex);
 			}
-			elementIndex = 0;
-			loadState = LoadState::None;
+			else if (prefix == "n")
+			{
+				ObjVector3 normal;
+				stream >> normal.x >> normal.y >> normal.z;
+				obj.normals.emplace_back(normal);
+			}
+			else if (prefix == "f")
+			{
+				ObjIndex vertexIndex;
+
+				while (stream >> vertexIndex)
+				{
+					obj.indices.push_back(vertexIndex - 1);
+					stream.ignore(0xff, ' ');
+				}
+			}
 		}
 
 		return obj;

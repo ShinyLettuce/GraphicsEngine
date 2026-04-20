@@ -28,5 +28,7 @@ private:
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
 
 	Camera myCamera;
-	Mesh myMesh;
+	Mesh myPyramidMesh;
+	Mesh myCubeMesh;
+	Mesh myLittleGuyMesh;
 };
