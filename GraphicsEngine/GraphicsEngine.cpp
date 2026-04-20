@@ -174,7 +174,14 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		indices.push_back(face.vertex);
 	}
 
-	success = myLittleGuyMesh.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", std::move(vertices), std::move(indices));
+	success = myLittleGuyMesh1.Init(myDevice.Get(), "VertexShader.cso", "CrazyPixelShader.cso", vertices, indices);
+
+	if (!success)
+	{
+		return false;
+	}
+
+	success = myLittleGuyMesh2.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", vertices, indices);
 
 	if (!success)
 	{
@@ -261,16 +268,17 @@ void GraphicsEngine::Render()
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
-		myCamera.GetPosition().x,myCamera.GetPosition().y,myCamera.GetPosition().z,1,
+		myCamera.GetPosition().x, myCamera.GetPosition().y, myCamera.GetPosition().z,1,
 		}
 	};
 
 	BufferData::VertexFrameBufferData vertexBufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
-	BufferData::PixelFrameBufferData pixelBufferData = { myTime };
+	BufferData::PixelFrameBufferData pixelBufferData = { myCamera.GetPosition(), myTime };
 
 	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, vertexBufferData, pixelBufferData);
 	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, vertexBufferData, pixelBufferData);
-	myLittleGuyMesh.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, vertexBufferData, pixelBufferData);
+	myLittleGuyMesh1.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, vertexBufferData, pixelBufferData);
+	myLittleGuyMesh2.Render(myContext.Get(), { 2.0f, -3.0f, 6.0f }, vertexBufferData, pixelBufferData);
 
 	mySwapChain->Present(1, 0);
 }

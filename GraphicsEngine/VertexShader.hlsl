@@ -17,7 +17,8 @@ struct VertexInputType
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
+    float4 screenPosition : SV_POSITION;
+    float4 worldPosition : POSITION;
     float3 normal : NORMAL;
     float4 color : COLOR;
 };
@@ -26,8 +27,9 @@ PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
     float4x4 objectToScreen = mul(worldToClipMatrix, modelToWorldMatrix);
-    output.position = mul(objectToScreen, input.position);
-    output.normal = input.normal;
+    output.screenPosition = mul(objectToScreen, input.position);
+    output.worldPosition = mul(modelToWorldMatrix, input.position);
+    output.normal = mul(modelToWorldMatrix, float4(input.normal, 0.0f));
     output.color = input.color;
     return output;
 }

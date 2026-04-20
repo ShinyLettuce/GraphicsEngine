@@ -5,7 +5,7 @@
 
 #include <d3d11.h>
 
-bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>&& aVertices, const std::vector<Index>&& aIndices)
+bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>& aVertices, const std::vector<Index>& aIndices)
 {
 	myVertices = aVertices;
 	myIndices = aIndices;

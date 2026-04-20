@@ -37,7 +37,7 @@ public:
 
 	using Index = unsigned int;
 
-	bool Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>&& aVertices, const std::vector<Index>&& aIndices);
+	bool Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>& aVertices, const std::vector<Index>& aIndices);
 
 	void Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, BufferData::VertexFrameBufferData aVertexFrameBufferData, BufferData::PixelFrameBufferData aPixelFrameBufferData);
 private:
