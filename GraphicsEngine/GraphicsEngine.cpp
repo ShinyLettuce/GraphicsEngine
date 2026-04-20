@@ -193,7 +193,16 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 {
 	static constexpr float cameraSpeed = 10.f;
+
+	float deltaRotationAroundY = 0.f;
+	float deltaRotationAroundX = 0.f;
+
 	Vector3<float> deltaDir{ 0.0f, 0.0f, 0.0f };
+
+	if (!aInput.isButtonDown(2))
+	{
+		return;
+	}
 
 	if (aInput.IsKeyDown('W'))
 	{
@@ -212,21 +221,29 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 		deltaDir.x += 1.f;
 	}
 
-	if (aInput.IsKeyDown(VK_SHIFT))
+	if (aInput.IsKeyDown('Q'))
 	{
 		deltaDir.y -= 1.f;
 	}
-	if (aInput.IsKeyDown(VK_SPACE))
+	if (aInput.IsKeyDown('E'))
 	{
 		deltaDir.y += 1.f;
+	}
+	
+	Vector2<int> mouseDelta = { (int)aInput.GetDeltaMousePosition().x, (int)aInput.GetDeltaMousePosition().y };
+	if (mouseDelta.Length() > 0 )
+	{
+		deltaRotationAroundY += (float)mouseDelta.x;
+		deltaRotationAroundX += (float)mouseDelta.y;
 	}
 
 	deltaDir.Normalize();
 
-	Vector3<float> CameraPosition = myCamera.GetPosition();
-	CameraPosition -= deltaDir * aDeltaTime * cameraSpeed;
+	deltaDir *= aDeltaTime * cameraSpeed;
+	deltaDir = deltaDir * Matrix3x3<float>::CreateRotationAroundX(myCamera.GetRotation().x) * Matrix3x3<float>::CreateRotationAroundY(myCamera.GetRotation().y);
 
-	myCamera.SetPosition3(CameraPosition);
+	myCamera.SetPosition3(myCamera.GetPosition() + deltaDir);
+	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.f} * aDeltaTime });
 }
 
 void GraphicsEngine::Render()
@@ -235,29 +252,22 @@ void GraphicsEngine::Render()
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	const float pi = 3.1415927f;
-	const float deg2rad = pi / 180.f;
-
-	float farClip = 1000.f;
-	float nearClip = 0.1f;
-	float Yfov = 90 * deg2rad;
-
-	float zoomY = 1.f / tan(Yfov * 0.5f);
-	float zoomX = zoomY * (9.0f / 16.0f);
-
-	BufferData::FrameBufferData frameBufferData
-	{
-		{
-			zoomX, 0.f, 0.f, 0.f,
-			0.f, zoomY, 0.f, 0.f,
-			0.f, 0.f, (farClip) / (farClip - nearClip), 1.f,
-			0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
+	Matrix4x4<float> transform = {
+		Matrix4x4<float>::CreateRotationAroundX(myCamera.GetRotation().x) *
+		Matrix4x4<float>::CreateRotationAroundY(myCamera.GetRotation().y) *
+		Matrix4x4<float>{
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		myCamera.GetPosition().x,myCamera.GetPosition().y,myCamera.GetPosition().z,1,
 		}
 	};
 
-	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, myCamera.GetFrameBufferData());
-	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, myCamera.GetFrameBufferData());
-	myLittleGuyMesh.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, myCamera.GetFrameBufferData());
+	BufferData::FrameBufferData bufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
+
+	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, bufferData);
+	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, bufferData);
+	myLittleGuyMesh.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, bufferData);
 
 	mySwapChain->Present(1, 0);
 }

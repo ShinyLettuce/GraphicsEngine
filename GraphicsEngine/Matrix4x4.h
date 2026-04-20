@@ -38,7 +38,7 @@ public:
 
 	Matrix4x4<T> GetTranspose() const;
 
-	static Matrix4x4<T> GetFastInverse(const Matrix4x4<T>& aMatrix);
+	Matrix4x4<T> GetFastInverse();
 
 	static Matrix4x4<T> CreateRotationAroundX(const T aAngleInRadians);
 	static Matrix4x4<T> CreateRotationAroundY(const T aAngleInRadians);
@@ -203,16 +203,16 @@ inline Matrix4x4<T> Matrix4x4<T>::GetTranspose() const
 }
 
 template<typename T>
-inline Matrix4x4<T> Matrix4x4<T>::GetFastInverse(const Matrix4x4<T>& aMatrix)
+inline Matrix4x4<T> Matrix4x4<T>::GetFastInverse()
 {
-	Matrix4x4<T> matrix(aMatrix);
+	Matrix4x4<T> matrix(*this);
 
-	matrix.linear[1] = aMatrix.linear[4];
-	matrix.linear[2] = aMatrix.linear[8];
-	matrix.linear[4] = aMatrix.linear[1];
-	matrix.linear[6] = aMatrix.linear[9];
-	matrix.linear[8] = aMatrix.linear[2];
-	matrix.linear[9] = aMatrix.linear[6];
+	matrix.linear[1] = linear[4];
+	matrix.linear[2] = linear[8];
+	matrix.linear[4] = linear[1];
+	matrix.linear[6] = linear[9];
+	matrix.linear[8] = linear[2];
+	matrix.linear[9] = linear[6];
 
 	Matrix3x3<T> transposeRotation(matrix);
 	Vector3<T> inverseTranslation(-matrix.linear[12], -matrix.linear[13], -matrix.linear[14]);

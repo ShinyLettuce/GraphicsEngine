@@ -4,12 +4,26 @@
 #define GET_X_PARAM(lParam) ((int)(short)((WORD)(((DWORD_PTR)(lParam)) & 0xffff)))
 #define GET_Y_PARAM(lParam) ((int)(short)((WORD)((((DWORD_PTR)(lParam)) >> 16) & 0xffff)))
 
-InputHandler::InputHandler():
-	myCurrentState{0},
-	myPreviousState{0},
-	myInputState{0}
+InputHandler::InputHandler() :
+	myCurrentState{ 0 },
+	myPreviousState{ 0 },
+	myInputState{ 0 },
+	myTentativeMouseDelta{0,0}
 
 {
+}
+
+void InputHandler::InitHandle(HWND aWindowHandle)
+{
+	RAWINPUTDEVICE rawDevice;
+	rawDevice.usUsagePage = { (USHORT)0x01 };
+	rawDevice.usUsage = { (USHORT)0x02 };
+	rawDevice.dwFlags = { RIDEV_INPUTSINK };
+	rawDevice.hwndTarget = aWindowHandle;
+
+	RegisterRawInputDevices(&rawDevice, 1, sizeof RAWINPUTDEVICE);
+
+
 }
 
 bool InputHandler::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
@@ -44,6 +58,20 @@ bool InputHandler::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
 			myInputMousePosition.x = GET_X_PARAM(lParam);
 			myInputMousePosition.y = GET_Y_PARAM(lParam);
 			return true;;
+		case WM_INPUT:
+			UINT dwSize = sizeof(RAWINPUT);
+			static BYTE lpb[sizeof(RAWINPUT)];
+
+			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+
+			RAWINPUT* raw = (RAWINPUT*)lpb;
+
+			if (raw->header.dwType == RIM_TYPEMOUSE)
+			{
+				myTentativeMouseDelta.x += raw->data.mouse.lLastX;
+				myTentativeMouseDelta.y += raw->data.mouse.lLastY;
+			}
+			return true;
 	}
 	return false;
 }
@@ -70,7 +98,7 @@ bool InputHandler::isButtonDown(const int aMouseButton) const
 
 POINT InputHandler::GetDeltaMousePosition() const
 {
-	return POINT{ myCurrentMousePosition.x - myPreviousMousePosition.x, myCurrentMousePosition.y - myPreviousMousePosition.y };
+	return POINT{ myMouseDelta.x, myMouseDelta.y };
 }
 
 POINT InputHandler::GetMousePosition() const
@@ -83,7 +111,10 @@ void InputHandler::UpdateInput()
 	myPreviousState = myCurrentState;
 	myCurrentState = myInputState;
 
-	myPreviousMousePosition = myCurrentMousePosition;
+	//myPreviousMousePosition = myCurrentMousePosition;
 	myCurrentMousePosition = myInputMousePosition;
+
+	myMouseDelta = myTentativeMouseDelta;
+	myTentativeMouseDelta = { 0,0 };
 
 }

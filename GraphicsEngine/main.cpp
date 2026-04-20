@@ -54,6 +54,7 @@ int main()
 
 	ShowWindow(hWnd, 1);
 	UpdateWindow(hWnd);
+	inputHandler.InitHandle(hWnd);
 
 	GraphicsEngine graphicsEngine;
 	if (!graphicsEngine.Initialize(hWnd))

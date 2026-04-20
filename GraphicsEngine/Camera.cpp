@@ -20,7 +20,10 @@ void Camera::Init(float aFarClip, float aNearClip, float aFOVinDeg, float aAspec
 
 void Camera::SetPosition3(Vector3<float> aPosition)
 {
-	myProjectionMatrix.worldToClipMatrix(4,1) = aPosition.x;
-	myProjectionMatrix.worldToClipMatrix(4,2) = aPosition.y;
-	myProjectionMatrix.worldToClipMatrix(4,3) = aPosition.z;
+	myPosition = aPosition;
+}
+
+void Camera::SetRotation(Vector3<float> aRotation)
+{
+	myRotation = aRotation;
 }
