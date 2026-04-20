@@ -135,12 +135,14 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext, BufferData::FrameBufferDa
 		const float y = 0.f;
 		const float z = 10.f;
 
-		BufferData::ObjectBufferData objectBufferData
-		{ 
-			1.f, 0.f, 0.f, 0.f,
-			0.f, 1.f, 0.f, 0.f,
-			0.f, 0.f, 1.f, 0.f,
-			x, y, z, 1.f
+		BufferData::ObjectBufferData objectBufferData{
+			Matrix4x4<float>
+			{
+				1.f, 0.f, 0.f, 0.f,
+				0.f, 1.f, 0.f, 0.f,
+				0.f, 0.f, 1.f, 0.f,
+				x, y, z, 1.f
+			} 
 		};
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
