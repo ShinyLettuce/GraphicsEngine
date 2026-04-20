@@ -5,7 +5,7 @@
 
 #include <d3d11.h>
 
-bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, const std::vector<Index>&& aIndices)
+bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>&& aVertices, const std::vector<Index>&& aIndices)
 {
 	myVertices = aVertices;
 	myIndices = aIndices;
@@ -56,18 +56,37 @@ bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, co
 	}
 
 	{
-		D3D11_BUFFER_DESC bufferDescription{ 0 };
-		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
-		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		bufferDescription.ByteWidth = sizeof(BufferData::FrameBufferData);
-		result = aDevice->CreateBuffer(&bufferDescription, nullptr, &myFrameBuffer);
+		D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
+		vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		vertexBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		vertexBufferDesc.ByteWidth = sizeof(BufferData::VertexFrameBufferData);
+		result = aDevice->CreateBuffer(&vertexBufferDesc, nullptr, &myVertexFrameBuffer);
+
 		if (FAILED(result))
 		{
 			return false;
 		}
-		bufferDescription.ByteWidth = sizeof(BufferData::ObjectBufferData);
-		result = aDevice->CreateBuffer(&bufferDescription, nullptr, &myObjectBuffer);
+
+		D3D11_BUFFER_DESC pixelBufferDesc{ 0 };
+		pixelBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		pixelBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		pixelBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		pixelBufferDesc.ByteWidth = sizeof(BufferData::PixelFrameBufferData);
+		result = aDevice->CreateBuffer(&pixelBufferDesc, nullptr, &myPixelFrameBuffer);
+
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		D3D11_BUFFER_DESC perObjectBufferDesc{ 0 };
+		perObjectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		perObjectBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		perObjectBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		perObjectBufferDesc.ByteWidth = sizeof(BufferData::PerObjectBufferData);
+		result = aDevice->CreateBuffer(&perObjectBufferDesc, nullptr, &myPerObjectBuffer);
+
 		if (FAILED(result))
 		{
 			return false;
@@ -77,7 +96,7 @@ bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, co
 	std::string vsData;
 	{
 		std::ifstream vsFile;
-		vsFile.open("VertexShader.cso", std::ios::binary);
+		vsFile.open(aVertexShaderPath, std::ios::binary);
 		vsData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
 		result = aDevice->CreateVertexShader(vsData.data(), vsData.size(), nullptr, &myVertexShader);
 
@@ -89,7 +108,7 @@ bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, co
 		vsFile.close();
 
 		std::ifstream psFile;
-		psFile.open("PixelShader.cso", std::ios::binary);
+		psFile.open(aPixelShaderPath, std::ios::binary);
 		std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
 		result = aDevice->CreatePixelShader(psData.data(), psData.size(), nullptr, &myPixelShader);
 
@@ -119,20 +138,26 @@ bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, co
 	return true;
 }
 
-void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, BufferData::FrameBufferData aCamera)
+void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, BufferData::VertexFrameBufferData aVertexFrameBufferData, BufferData::PixelFrameBufferData aPixelFrameBufferData)
 {
 	{
-		BufferData::FrameBufferData frameBufferData = {};
-		frameBufferData = aCamera;
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		aDeviceContext->Map(myFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-		memcpy(mappedBuffer.pData, &frameBufferData, sizeof(BufferData::FrameBufferData));
-		aDeviceContext->Unmap(myFrameBuffer.Get(), 0);
-		aDeviceContext->VSSetConstantBuffers(0, 1, myFrameBuffer.GetAddressOf());
+		aDeviceContext->Map(myVertexFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &aVertexFrameBufferData, sizeof(BufferData::VertexFrameBufferData));
+		aDeviceContext->Unmap(myVertexFrameBuffer.Get(), 0);
+		aDeviceContext->VSSetConstantBuffers(0, 1, myVertexFrameBuffer.GetAddressOf());
 	}
 
 	{
-		BufferData::ObjectBufferData objectBufferData{
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		aDeviceContext->Map(myPixelFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &aPixelFrameBufferData, sizeof(BufferData::PixelFrameBufferData));
+		aDeviceContext->Unmap(myPixelFrameBuffer.Get(), 0);
+		aDeviceContext->PSSetConstantBuffers(0, 1, myPixelFrameBuffer.GetAddressOf());
+	}
+
+	{
+		BufferData::PerObjectBufferData objectBufferData{
 			Matrix4x4<float>
 			{
 				1.f, 0.f, 0.f, 0.f,
@@ -143,11 +168,11 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslati
 		};
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-		aDeviceContext->Map(myObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-		memcpy(mappedBuffer.pData, &objectBufferData, sizeof(BufferData::ObjectBufferData));
-		aDeviceContext->Unmap(myObjectBuffer.Get(), 0);
+		aDeviceContext->Map(myPerObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &objectBufferData, sizeof(BufferData::PerObjectBufferData));
+		aDeviceContext->Unmap(myPerObjectBuffer.Get(), 0);
 
-		aDeviceContext->VSSetConstantBuffers(1, 1, myObjectBuffer.GetAddressOf());
+		aDeviceContext->VSSetConstantBuffers(1, 1, myPerObjectBuffer.GetAddressOf());
 	}
 
 	aDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -33,4 +33,6 @@ private:
 	Mesh myPyramidMesh;
 	Mesh myCubeMesh;
 	Mesh myLittleGuyMesh;
+
+	float myTime{ 0.0f };
 };

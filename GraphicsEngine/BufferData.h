@@ -4,11 +4,17 @@
 
 namespace BufferData
 {
-	struct alignas(16) FrameBufferData
+	struct alignas(16) VertexFrameBufferData
 	{
 		Matrix4x4<float> worldToClipMatrix;
 	};
-	struct alignas(16) ObjectBufferData
+
+	struct alignas(16) PixelFrameBufferData
+	{
+		float time;
+	};
+
+	struct alignas(16) PerObjectBufferData
 	{
 		Matrix4x4<float> modelToWorldMatrix;
 	};

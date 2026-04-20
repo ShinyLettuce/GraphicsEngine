@@ -13,8 +13,8 @@ public:
 	void SetPosition3(Vector3<float> aPosition);
 	Vector3<float> GetPosition() { return myPosition; }
 
-	void SetFrameBufferData(const BufferData::FrameBufferData& aData) { myProjectionMatrix = aData; }
-	BufferData::FrameBufferData GetFrameBufferData() { return myProjectionMatrix; }
+	void SetFrameBufferData(const BufferData::VertexFrameBufferData& aData) { myProjectionMatrix = aData; }
+	BufferData::VertexFrameBufferData GetFrameBufferData() { return myProjectionMatrix; }
 private:
 
 	float myFarClip = 1000.f;
@@ -24,5 +24,5 @@ private:
 	Vector3<float> myRotation;
 	Vector3<float> myPosition;
 
-	BufferData::FrameBufferData myProjectionMatrix;
+	BufferData::VertexFrameBufferData myProjectionMatrix;
 };

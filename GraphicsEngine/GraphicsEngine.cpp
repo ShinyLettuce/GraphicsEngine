@@ -96,7 +96,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	bool success;
 
-	success = myPyramidMesh.Init(myDevice.Get(),
+	success = myPyramidMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
 		{
 			{ -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
 			{ 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
@@ -115,7 +115,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			0, 1, 2
 		});
 
-	success = myCubeMesh.Init(myDevice.Get(),
+	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
 		{
 			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
 			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
@@ -174,7 +174,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		indices.push_back(face.vertex);
 	}
 
-	success = myLittleGuyMesh.Init(myDevice.Get(), std::move(vertices), std::move(indices));
+	success = myLittleGuyMesh.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", std::move(vertices), std::move(indices));
 
 	if (!success)
 	{
@@ -192,6 +192,8 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 {
+	myTime += aDeltaTime;
+
 	static constexpr float cameraSpeed = 10.f;
 
 	float deltaRotationAroundY = 0.f;
@@ -263,11 +265,12 @@ void GraphicsEngine::Render()
 		}
 	};
 
-	BufferData::FrameBufferData bufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
+	BufferData::VertexFrameBufferData vertexBufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
+	BufferData::PixelFrameBufferData pixelBufferData = { myTime };
 
-	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, bufferData);
-	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, bufferData);
-	myLittleGuyMesh.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, bufferData);
+	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, vertexBufferData, pixelBufferData);
+	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, vertexBufferData, pixelBufferData);
+	myLittleGuyMesh.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, vertexBufferData, pixelBufferData);
 
 	mySwapChain->Present(1, 0);
 }

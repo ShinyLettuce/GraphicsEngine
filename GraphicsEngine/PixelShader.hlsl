@@ -13,6 +13,6 @@ struct PixelOutput
 PixelOutput main(PixelInputType input)
 {
     PixelOutput result;
-    result.color = float4(input.normal, 1.0f);
+    result.color = input.color;
     return result;
 }

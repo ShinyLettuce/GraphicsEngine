@@ -1,3 +1,8 @@
+cbuffer FrameData : register(b0)
+{
+    float time;
+}
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
