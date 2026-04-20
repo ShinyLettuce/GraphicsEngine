@@ -32,8 +32,8 @@ private:
 	Camera myCamera;
 	Mesh myPyramidMesh;
 	Mesh myCubeMesh;
-	Mesh myLittleGuyMesh1;
-	Mesh myLittleGuyMesh2;
+	Mesh myHandMesh;
+	Mesh myDragonMesh;
 
 	float myTime{ 0.0f };
 };

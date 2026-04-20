@@ -152,36 +152,69 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
-	Obj::Obj obj = Obj::LoadFromFile("LittleGuy.model");
-
-	std::vector<Mesh::Vertex> vertices;
-	std::vector<Mesh::Index> indices;
-
-	vertices.reserve(obj.vertices.size());
-	vertices.resize(obj.vertices.size());
-
-	for (const auto& face : obj.faces)
 	{
-		vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
-		vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
-		vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
-		vertices.at(face.vertex).position.w = 1.0f;
+		Obj::Obj obj = Obj::LoadFromFile("Hand.obj");
 
-		vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
-		vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
-		vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
+		std::vector<Mesh::Vertex> vertices;
+		std::vector<Mesh::Index> indices;
 
-		indices.push_back(face.vertex);
+		vertices.reserve(obj.vertices.size());
+		vertices.resize(obj.vertices.size());
+
+		for (const auto& face : obj.faces)
+		{
+			vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
+			vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
+			vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
+			vertices.at(face.vertex).position.w = 1.0f;
+
+			vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
+			vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
+			vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
+
+			indices.push_back(face.vertex);
+		}
+
+		success = myHandMesh.Init(myDevice.Get(), "VertexShader.cso", "CrazyPixelShader.cso", vertices, indices);
+
+		if (!success)
+		{
+			return false;
+		}
 	}
 
-	success = myLittleGuyMesh1.Init(myDevice.Get(), "VertexShader.cso", "CrazyPixelShader.cso", vertices, indices);
-
-	if (!success)
 	{
-		return false;
-	}
+		{
+			Obj::Obj obj = Obj::LoadFromFile("Dragon.obj");
 
-	success = myLittleGuyMesh2.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", vertices, indices);
+			std::vector<Mesh::Vertex> vertices;
+			std::vector<Mesh::Index> indices;
+
+			vertices.reserve(obj.vertices.size());
+			vertices.resize(obj.vertices.size());
+
+			for (const auto& face : obj.faces)
+			{
+				vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
+				vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
+				vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
+				vertices.at(face.vertex).position.w = 1.0f;
+
+				vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
+				vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
+				vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
+
+				indices.push_back(face.vertex);
+			}
+
+			success = myDragonMesh.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", vertices, indices);
+
+			if (!success)
+			{
+				return false;
+			}
+		}
+	}
 
 	if (!success)
 	{
@@ -275,10 +308,10 @@ void GraphicsEngine::Render()
 	BufferData::VertexFrameBufferData vertexBufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
 	BufferData::PixelFrameBufferData pixelBufferData = { myCamera.GetPosition(), myTime };
 
-	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, vertexBufferData, pixelBufferData);
-	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, vertexBufferData, pixelBufferData);
-	myLittleGuyMesh1.Render(myContext.Get(), { 0.0f, -3.0f, 6.0f }, vertexBufferData, pixelBufferData);
-	myLittleGuyMesh2.Render(myContext.Get(), { 2.0f, -3.0f, 6.0f }, vertexBufferData, pixelBufferData);
+	myPyramidMesh.Render(myContext.Get(), { -1.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
+	myCubeMesh.Render(myContext.Get(), { 1.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
+	myHandMesh.Render(myContext.Get(), { 0.0f, 0.0f, 20.0f }, vertexBufferData, pixelBufferData);
+	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 17.0f }, vertexBufferData, pixelBufferData);
 
 	mySwapChain->Present(1, 0);
 }

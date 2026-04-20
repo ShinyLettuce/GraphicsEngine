@@ -42,7 +42,7 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 	{
 		D3D11_BUFFER_DESC indexBufferDesc{ 0 };
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof(Vertex) * (UINT)myIndices.size();
+		indexBufferDesc.ByteWidth = sizeof(Index) * (UINT)myIndices.size();
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 		D3D11_SUBRESOURCE_DATA indexData{ 0 };
