@@ -13,14 +13,14 @@ void Camera::Init(float aFarClip, float aNearClip, float aFOVinDeg, float aAspec
 	myProjectionMatrix = {
 		zoomX, 0.f, 0.f, 0.f,
 		0.f, zoomY, 0.f, 0.f,
-		0.f, 0.f, (myFarClip) / (myFarClip - myNearClip), 0.f,
+		0.f, 0.f, (myFarClip) / (myFarClip - myNearClip), 1.f,
 		0.f, 0.f, (-myNearClip * myFarClip) / (myFarClip - myNearClip), 0.f
 	};
 }
 
 void Camera::SetPosition3(Vector3 aPosition)
 {
-	myProjectionMatrix.worldToClipMatrix[3] = aPosition.x;
-	myProjectionMatrix.worldToClipMatrix[7] = aPosition.y;
-	myProjectionMatrix.worldToClipMatrix[11] = aPosition.z;
+	myProjectionMatrix.worldToClipMatrix[12] = aPosition.x;
+	myProjectionMatrix.worldToClipMatrix[13] = aPosition.y;
+	myProjectionMatrix.worldToClipMatrix[14] = aPosition.z;
 }

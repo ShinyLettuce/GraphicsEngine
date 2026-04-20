@@ -4,7 +4,7 @@
 #define GET_X_PARAM(lParam) ((int)(short)((WORD)(((DWORD_PTR)(lParam)) & 0xffff)))
 #define GET_Y_PARAM(lParam) ((int)(short)((WORD)((((DWORD_PTR)(lParam)) >> 16) & 0xffff)))
 
-CommonUtilities::InputHandler::InputHandler():
+InputHandler::InputHandler():
 	myCurrentState{0},
 	myPreviousState{0},
 	myInputState{0}
@@ -12,7 +12,7 @@ CommonUtilities::InputHandler::InputHandler():
 {
 }
 
-bool CommonUtilities::InputHandler::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
+bool InputHandler::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -48,37 +48,37 @@ bool CommonUtilities::InputHandler::UpdateEvents(UINT message, WPARAM wParam, LP
 	return false;
 }
 
-bool CommonUtilities::InputHandler::IsKeyDown(const int aKeyCode) const
+bool InputHandler::IsKeyDown(const int aKeyCode) const
 {
 	return myCurrentState[aKeyCode];
 }
 
-bool CommonUtilities::InputHandler::IsKeyPressed(const int aKeyCode) const
+bool InputHandler::IsKeyPressed(const int aKeyCode) const
 {
 	return myPreviousState[aKeyCode] ? false : myCurrentState[aKeyCode];
 }
 
-bool CommonUtilities::InputHandler::isKeyReleased(const int aKeyCode) const
+bool InputHandler::isKeyReleased(const int aKeyCode) const
 {
 	return myPreviousState[aKeyCode] ? !myCurrentState[aKeyCode] : false;
 }
 
-bool CommonUtilities::InputHandler::isButtonDown(const int aMouseButton) const
+bool InputHandler::isButtonDown(const int aMouseButton) const
 {
 	return myCurrentState[aMouseButton];
 }
 
-POINT CommonUtilities::InputHandler::GetDeltaMousePosition() const
+POINT InputHandler::GetDeltaMousePosition() const
 {
 	return POINT{ myCurrentMousePosition.x - myPreviousMousePosition.x, myCurrentMousePosition.y - myPreviousMousePosition.y };
 }
 
-POINT CommonUtilities::InputHandler::GetMousePosition() const
+POINT InputHandler::GetMousePosition() const
 {
 	return myCurrentMousePosition;
 }
 
-void CommonUtilities::InputHandler::UpdateInput()
+void InputHandler::UpdateInput()
 {
 	myPreviousState = myCurrentState;
 	myCurrentState = myInputState;

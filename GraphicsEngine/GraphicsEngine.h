@@ -19,7 +19,7 @@ public:
 	GraphicsEngine();
 	~GraphicsEngine();
 	bool Initialize(HWND windowHandle);
-	void Update(const CommonUtilities::InputHandler& aInput);
+	void Update(const InputHandler& aInput, float aDeltaTime);
 	void Render();
 private:
 	ComPtr<ID3D11Device> myDevice;

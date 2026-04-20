@@ -89,50 +89,59 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
-	float squarePos[2] = { 1000.f, 200.f };
-
-	squarePos[0] = (squarePos[0] * 2 / static_cast<float>(textureDesc.Width)) - 1;
-	squarePos[1] = (squarePos[1] * 2 / static_cast<float>(textureDesc.Height)) - 1;
-
-	float squareColor[3] = { 0.9f, 0.0f, 0.0f };
+	float farClip = 1000.f;
+	float nearClip = 0.1f;
+	float Yfov = 90;
+	float aspect = (9.0f / 16.0f);
+	myCamera.Init(farClip, nearClip, Yfov, aspect);
 
 	return true;
 }
 
-void GraphicsEngine::Update(const CommonUtilities::InputHandler& aInput)
+void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 {
-	Vector3 deltaPos{ 0.0f, 0.0f, 0.0f };
+	static constexpr float cameraSpeed = 10.f;
+	Vector3 deltaDir{ 0.0f, 0.0f, 0.0f };
 
 	if (aInput.IsKeyDown('W'))
 	{
-		deltaPos.z += 10.f;
+		deltaDir.z += 1.f;
 	}
 	if (aInput.IsKeyDown('A'))
 	{
-		deltaPos.x -= 10.f;
+		deltaDir.x -= 1.f;
 	}
 	if (aInput.IsKeyDown('S'))
 	{
-		deltaPos.z -= 10.f;
+		deltaDir.z -= 1.f;
 	}
 	if (aInput.IsKeyDown('D'))
 	{
-		deltaPos.x += 10.f;
+		deltaDir.x += 1.f;
 	}
 
 	if (aInput.IsKeyDown(VK_SHIFT))
 	{
-		deltaPos.y -= 10.f;
+		deltaDir.y -= 1.f;
 	}
 	if (aInput.IsKeyDown(VK_SPACE))
 	{
-		deltaPos.y += 10.f;
+		deltaDir.y += 1.f;
+	}
+
+	// Normalize
+	float dirLength = sqrt(deltaDir.x * deltaDir.x + deltaDir.y * deltaDir.y + deltaDir.z * deltaDir.z);
+	if (dirLength != 0)
+	{
+		deltaDir.x /= dirLength;
+		deltaDir.y /= dirLength;
+		deltaDir.z /= dirLength;
 	}
 
 	Vector3 CameraPosition = myCamera.GetPosition();
-	CameraPosition.x += deltaPos.x;
-	CameraPosition.y += deltaPos.y;
-	CameraPosition.z += deltaPos.z;
+	CameraPosition.x -= deltaDir.x * aDeltaTime * cameraSpeed;
+	CameraPosition.y -= deltaDir.y * aDeltaTime * cameraSpeed;
+	CameraPosition.z -= deltaDir.z * aDeltaTime * cameraSpeed;
 
 	myCamera.SetPosition3(CameraPosition);
 }
@@ -160,7 +169,7 @@ void GraphicsEngine::Render()
 		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
 	};
 
-	myMesh.Render(myContext.Get(), frameBufferData);
+	myMesh.Render(myContext.Get(), myCamera.GetFrameBufferData());
 
 	mySwapChain->Present(1, 0);
 }
