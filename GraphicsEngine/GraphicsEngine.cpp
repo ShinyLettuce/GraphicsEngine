@@ -153,7 +153,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	}
 
 	{
-		Obj::Obj obj = Obj::LoadFromFile("Hand.obj");
+		Obj::Obj obj = Obj::LoadFromFile("Hand.model");
 
 		std::vector<Mesh::Vertex> vertices;
 		std::vector<Mesh::Index> indices;
@@ -185,7 +185,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	{
 		{
-			Obj::Obj obj = Obj::LoadFromFile("Dragon.obj");
+			Obj::Obj obj = Obj::LoadFromFile("Dragon.model");
 
 			std::vector<Mesh::Vertex> vertices;
 			std::vector<Mesh::Index> indices;
@@ -308,10 +308,10 @@ void GraphicsEngine::Render()
 	BufferData::VertexFrameBufferData vertexBufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
 	BufferData::PixelFrameBufferData pixelBufferData = { myCamera.GetPosition(), myTime };
 
-	myPyramidMesh.Render(myContext.Get(), { -1.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
-	myCubeMesh.Render(myContext.Get(), { 1.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
+	myPyramidMesh.Render(myContext.Get(), { -2.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
+	myCubeMesh.Render(myContext.Get(), { 2.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
 	myHandMesh.Render(myContext.Get(), { 0.0f, 0.0f, 20.0f }, vertexBufferData, pixelBufferData);
-	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 17.0f }, vertexBufferData, pixelBufferData);
+	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 18.5f }, vertexBufferData, pixelBufferData);
 
 	mySwapChain->Present(1, 0);
 }
