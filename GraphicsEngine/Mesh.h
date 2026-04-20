@@ -19,12 +19,16 @@ using Microsoft::WRL::ComPtr;
 class Mesh
 {
 public:
-	struct Vertex
+	struct alignas(16) Vertex
 	{
 		struct
 		{
 			float x, y, z, w;
 		} position;
+		struct
+		{
+			float x, y, z;
+		} normal;
 		struct
 		{
 			float x, y, z, w;

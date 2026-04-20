@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #pragma comment (lib, "d3d11.lib")
 
+#include <filesystem>
 #include <cmath>
 
 #include "Vector.h"
@@ -46,41 +47,62 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		&myContext
 	);
 
-	ID3D11Texture2D* backBufferTexture;
+	ComPtr<ID3D11Texture2D> backBufferTexture;
+
 	result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
 	if (FAILED(result))
 	{
 		return false;
 	}
-	result = myDevice->CreateRenderTargetView(backBufferTexture, nullptr, &myBackBuffer);
+
+	result = myDevice->CreateRenderTargetView(backBufferTexture.Get(), nullptr, &myBackBuffer);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	D3D11_TEXTURE2D_DESC textureDesc;
-	backBufferTexture->GetDesc(&textureDesc);
-	backBufferTexture->Release();
+	D3D11_TEXTURE2D_DESC backBufferDesc{ 0 };
+	backBufferTexture->GetDesc(&backBufferDesc);
 
-	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), nullptr);
+	D3D11_TEXTURE2D_DESC depthTextureDesc{ 0 };
+	depthTextureDesc.Width = backBufferDesc.Width;
+	depthTextureDesc.Height = backBufferDesc.Height;
+	depthTextureDesc.MipLevels = 1;
+	depthTextureDesc.ArraySize = 1;
+	depthTextureDesc.SampleDesc.Count = 1;
+	depthTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferDesc{ };
+	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthBufferDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+	ComPtr<ID3D11Texture2D> depthBufferTexture;
+
+	myDevice->CreateTexture2D(&depthTextureDesc, nullptr, &depthBufferTexture);
+	myDevice->CreateDepthStencilView(depthBufferTexture.Get(), &depthBufferDesc, &myDepthBuffer);
+
+	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), myDepthBuffer.Get());
+
 	D3D11_VIEWPORT viewport = { };
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	viewport.Width = static_cast<float>(textureDesc.Width);
-	viewport.Height = static_cast<float>(textureDesc.Height);
+	viewport.Width = static_cast<float>(backBufferDesc.Width);
+	viewport.Height = static_cast<float>(backBufferDesc.Height);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
+
 	myContext->RSSetViewports(1, &viewport);
 
 	bool success;
 
 	success = myPyramidMesh.Init(myDevice.Get(),
 		{
-			{ -1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{ 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{ 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{ -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
-			{ 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+			{ 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
 		},
 		{
 			// Top faces
@@ -95,14 +117,14 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myCubeMesh.Init(myDevice.Get(),
 		{
-			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
-			{ 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{ 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f },
-			{ -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{ 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
-			{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f },
-			{ 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+			{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
+			{ 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
 		},
 		{
 			// Front face
@@ -133,27 +155,23 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	Obj::Obj obj = Obj::LoadFromFile("LittleGuy.model");
 
 	std::vector<Mesh::Vertex> vertices;
-	for (const auto& objVertex : obj.vertices)
-	{
-		Mesh::Vertex vertex;
-		vertex.position.x = objVertex.x;
-		vertex.position.y = objVertex.y;
-		vertex.position.z = objVertex.z;
-		vertex.position.w = 1.0f;
-		vertex.color.x = 1.0f;
-		vertex.color.y = 1.0f;
-		vertex.color.z = 1.0f;
-		vertex.color.w = 1.0f;
-
-		vertices.emplace_back(vertex);
-	}
-
 	std::vector<Mesh::Index> indices;
-	for (const auto& objIndex: obj.indices)
-	{
-		Mesh::Index index = objIndex;
 
-		indices.emplace_back(index);
+	vertices.reserve(obj.vertices.size());
+	vertices.resize(obj.vertices.size());
+
+	for (const auto& face : obj.faces)
+	{
+		vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
+		vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
+		vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
+		vertices.at(face.vertex).position.w = 1.0f;
+
+		vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
+		vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
+		vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
+
+		indices.push_back(face.vertex);
 	}
 
 	success = myLittleGuyMesh.Init(myDevice.Get(), std::move(vertices), std::move(indices));
@@ -215,6 +233,7 @@ void GraphicsEngine::Render()
 {
 	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f };
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
+	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	const float pi = 3.1415927f;
 	const float deg2rad = pi / 180.f;

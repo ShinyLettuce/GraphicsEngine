@@ -21,13 +21,17 @@ namespace Obj
 		};
 	};
 
-	typedef unsigned int ObjIndex;
+	struct ObjFace
+	{
+		unsigned int vertex;
+		unsigned int normal;
+	};
 
 	struct Obj
 	{
 		std::vector<ObjVector3> vertices;
 		std::vector<ObjVector3> normals;
-		std::vector<ObjIndex> indices;
+		std::vector<ObjFace> faces;
 	};
 
 	inline Obj LoadFromFile(const char* aFilePath)
@@ -57,7 +61,7 @@ namespace Obj
 				stream >> vertex.x >> vertex.y >> vertex.z;
 				obj.vertices.emplace_back(vertex);
 			}
-			else if (prefix == "n")
+			else if (prefix == "vn")
 			{
 				ObjVector3 normal;
 				stream >> normal.x >> normal.y >> normal.z;
@@ -65,12 +69,19 @@ namespace Obj
 			}
 			else if (prefix == "f")
 			{
-				ObjIndex vertexIndex;
+				ObjFace face;
 
-				while (stream >> vertexIndex)
+				while (stream >> face.vertex)
 				{
-					obj.indices.push_back(vertexIndex - 1);
-					stream.ignore(0xff, ' ');
+					stream.ignore(1); // Skip /
+					// We dont have texture index
+					stream.ignore(1); // Skip /
+					stream >> face.normal;
+
+					face.vertex -= 1;
+					face.normal -= 1;
+
+					obj.faces.push_back(face);
 				}
 			}
 		}

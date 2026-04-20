@@ -23,40 +23,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
-	Obj::Obj obj = Obj::LoadFromFile("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
 	InputHandler inputHandler;
 	locInput = &inputHandler;
 	Timer timer;
-
-	OutputDebugStringA("\nVERTICES!!!\n");
-
-	for (Obj::ObjVector3 vertex : obj.vertices)
-	{
-		std::stringstream ss;
-		ss << "(" << vertex.x << ", " << vertex.y << ", " << vertex.z << ")" << "\n";
-
-		OutputDebugStringA(ss.str().data());
-	}
-
-	OutputDebugStringA("\nNORMALS!!!\n");
-
-	for (Obj::ObjVector3 normal : obj.normals)
-	{
-		std::stringstream ss;
-		ss << "(" << normal.x << ", " << normal.y << ", " << normal.z << ")" << "\n";
-
-		OutputDebugStringA(ss.str().data());
-	}
-
-	OutputDebugStringA("\nINDICES!!!\n");
-
-	for (Obj::ObjIndex index : obj.indices)
-	{
-		std::stringstream ss;
-		ss << "(" << index << ")" << "\n";
-
-		OutputDebugStringA(ss.str().data());
-	}
 
 	HINSTANCE hInstance = GetModuleHandleA(nullptr);
 
