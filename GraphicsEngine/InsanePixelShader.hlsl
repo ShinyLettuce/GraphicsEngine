@@ -1,5 +1,6 @@
 cbuffer FrameData : register(b0)
 {
+    float3 eyePosition;
     float time;
 }
 
