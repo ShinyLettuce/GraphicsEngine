@@ -8,6 +8,8 @@ public:
 
 	InputHandler();
 
+	void InitHandle(HWND aWindowHandle);
+
 	/// <summary>
 	/// Should be called as part of Windows' message handling.
 	/// Registers all input messages to be handled this frame.
@@ -31,6 +33,9 @@ private:
 	std::array<bool, 256> myCurrentState;
 	std::array<bool, 256> myPreviousState;
 	std::array<bool, 256> myInputState;
+
+	POINT myTentativeMouseDelta;
+	POINT myMouseDelta;
 
 	POINT myPreviousMousePosition;
 	POINT myCurrentMousePosition;

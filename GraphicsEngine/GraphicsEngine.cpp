@@ -101,7 +101,16 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 {
 	static constexpr float cameraSpeed = 10.f;
+
+	float deltaRotationAroundY = 0.f;
+	float deltaRotationAroundX = 0.f;
+
 	Vector3<float> deltaDir{ 0.0f, 0.0f, 0.0f };
+
+	if (!aInput.isButtonDown(2))
+	{
+		return;
+	}
 
 	if (aInput.IsKeyDown('W'))
 	{
@@ -120,21 +129,29 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 		deltaDir.x += 1.f;
 	}
 
-	if (aInput.IsKeyDown(VK_SHIFT))
+	if (aInput.IsKeyDown('Q'))
 	{
 		deltaDir.y -= 1.f;
 	}
-	if (aInput.IsKeyDown(VK_SPACE))
+	if (aInput.IsKeyDown('E'))
 	{
 		deltaDir.y += 1.f;
+	}
+	
+	Vector2<int> mouseDelta = { (int)aInput.GetDeltaMousePosition().x, (int)aInput.GetDeltaMousePosition().y };
+	if (mouseDelta.Length() > 0 )
+	{
+		deltaRotationAroundY += (float)mouseDelta.x;
+		deltaRotationAroundX += (float)mouseDelta.y;
 	}
 
 	deltaDir.Normalize();
 
-	Vector3<float> CameraPosition = myCamera.GetPosition();
-	CameraPosition -= deltaDir * aDeltaTime * cameraSpeed;
+	deltaDir *= aDeltaTime * cameraSpeed;
+	deltaDir = deltaDir * Matrix3x3<float>::CreateRotationAroundX(myCamera.GetRotation().x) * Matrix3x3<float>::CreateRotationAroundY(myCamera.GetRotation().y);
 
-	myCamera.SetPosition3(CameraPosition);
+	myCamera.SetPosition3(myCamera.GetPosition() + deltaDir);
+	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.f} * aDeltaTime });
 }
 
 void GraphicsEngine::Render()
@@ -142,7 +159,20 @@ void GraphicsEngine::Render()
 	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f};
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 
-	myMesh.Render(myContext.Get(), myCamera.GetFrameBufferData());
+	Matrix4x4<float> transform = {
+		Matrix4x4<float>::CreateRotationAroundX(myCamera.GetRotation().x) *
+		Matrix4x4<float>::CreateRotationAroundY(myCamera.GetRotation().y) *
+		Matrix4x4<float>{
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		myCamera.GetPosition().x,myCamera.GetPosition().y,myCamera.GetPosition().z,1,
+		}
+	};
+
+	BufferData::FrameBufferData bufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
+
+	myMesh.Render(myContext.Get(), bufferData);
 
 	mySwapChain->Present(1, 0);
 }

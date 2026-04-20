@@ -88,6 +88,7 @@ int APIENTRY wWinMain(
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
+	inputHandler.InitHandle(hWnd);
 
 	GraphicsEngine graphicsEngine;
 	if (!graphicsEngine.Initialize(hWnd))
