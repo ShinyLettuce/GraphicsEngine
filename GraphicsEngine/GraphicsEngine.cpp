@@ -98,10 +98,10 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myPyramidMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
 		{
-			{ -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{ 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{ 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{ -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
 			{ 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
 		},
 		{
@@ -290,7 +290,7 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 
 void GraphicsEngine::Render()
 {
-	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f };
+	const float color[4]{ 89.0f / 1023.0f * (89.0f / 83.0f), 0.0f, 25.0f / 1023.0f * (25.0f / 45.0f), 1.0f};
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -301,17 +301,17 @@ void GraphicsEngine::Render()
 		1,0,0,0,
 		0,1,0,0,
 		0,0,1,0,
-		myCamera.GetPosition().x, myCamera.GetPosition().y, myCamera.GetPosition().z,1,
+		myCamera.GetPosition().x, myCamera.GetPosition().y, myCamera.GetPosition().z, 1,
 		}
 	};
 
 	BufferData::VertexFrameBufferData vertexBufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
 	BufferData::PixelFrameBufferData pixelBufferData = { myCamera.GetPosition(), myTime };
 
-	myPyramidMesh.Render(myContext.Get(), { -2.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
-	myCubeMesh.Render(myContext.Get(), { 2.0f, -5.0f, 10.0f }, vertexBufferData, pixelBufferData);
-	myHandMesh.Render(myContext.Get(), { 0.0f, 0.0f, 20.0f }, vertexBufferData, pixelBufferData);
-	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 18.5f }, vertexBufferData, pixelBufferData);
+	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f }, vertexBufferData, pixelBufferData);
+	myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f }, vertexBufferData, pixelBufferData);
+	myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f }, vertexBufferData, pixelBufferData);
+	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f }, vertexBufferData, pixelBufferData);
 
 	mySwapChain->Present(1, 0);
 }

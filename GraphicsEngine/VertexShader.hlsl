@@ -18,9 +18,9 @@ struct VertexInputType
 struct PixelInputType
 {
     float4 screenPosition : SV_POSITION;
-    float4 worldPosition : POSITION;
     float3 normal : NORMAL;
     float4 color : COLOR;
+    float4 worldPosition : POSITION;
 };
 
 PixelInputType main(VertexInputType input)
