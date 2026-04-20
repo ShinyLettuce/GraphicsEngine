@@ -74,28 +74,77 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
 
-	const bool success = myMesh.Init(myDevice.Get(),
+	//const bool success = myMesh.Init(myDevice.Get(),
+	//	{
+	//		{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+	//		{  0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+	//		{  1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+	//	},
+	//	{
+	//		0, 1, 2
+	//	});
+
+	bool success;
+
+	success = myPyramidMesh.Init(myDevice.Get(),
 		{
-			{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{  0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{  1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+			{ -1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+			{ 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{ 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f },
 		},
 		{
-			0, 1, 2
+			0, 4, 1,
+			1, 4, 2,
+			2, 4, 3,
+			3, 4, 0
 		});
 
-	if (!success)
-	{
-		return false;
-	}
+	success = myCubeMesh.Init(myDevice.Get(),
+		{
+			{ -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+		},
+		{
+			// Front face
+			0, 4, 5,
+			5, 1, 0,
+			// Top face
+			4, 6, 7,
+			7, 5, 4,
+			// Back face
+			3, 7, 6,
+			6, 2, 3,
+			// Bottom face
+			2, 0, 1,
+			1, 3, 2,
+			// Left face
+			2, 6, 4,
+			4, 0, 2,
+			// Right face
+			1, 5, 7,
+			7, 3, 1
+		});
 
-	float farClip = 1000.f;
-	float nearClip = 0.1f;
-	float Yfov = 90;
-	float aspect = (9.0f / 16.0f);
-	myCamera.Init(farClip, nearClip, Yfov, aspect);
+		if (!success)
+		{
+			return false;
+		}
 
-	return true;
+		float farClip = 1000.f;
+		float nearClip = 0.1f;
+		float Yfov = 90;
+		float aspect = (9.0f / 16.0f);
+		myCamera.Init(farClip, nearClip, Yfov, aspect);
+
+		return true;
 }
 
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
@@ -148,7 +197,7 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 
 void GraphicsEngine::Render()
 {
-	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f};
+	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f };
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 
 	const float pi = 3.1415927f;
@@ -161,7 +210,7 @@ void GraphicsEngine::Render()
 	float zoomY = 1.f / tan(Yfov * 0.5f);
 	float zoomX = zoomY * (9.0f / 16.0f);
 
-	BufferData::FrameBufferData frameBufferData 
+	BufferData::FrameBufferData frameBufferData
 	{
 		zoomX, 0.f, 0.f, 0.f,
 		0.f, zoomY, 0.f, 0.f,
@@ -169,7 +218,8 @@ void GraphicsEngine::Render()
 		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
 	};
 
-	myMesh.Render(myContext.Get(), myCamera.GetFrameBufferData());
+	myPyramidMesh.Render(myContext.Get(), { 2.0f, 1.0f, 10.0f }, myCamera.GetFrameBufferData());
+	myCubeMesh.Render(myContext.Get(), { -1.0f, 0.0f, 4.0f }, myCamera.GetFrameBufferData());
 
 	mySwapChain->Present(1, 0);
 }

@@ -118,7 +118,7 @@ bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, co
 	return true;
 }
 
-void Mesh::Render(ID3D11DeviceContext* aDeviceContext, BufferData::FrameBufferData aCamera)
+void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3 aTranslation, BufferData::FrameBufferData aCamera)
 {
 	{
 		BufferData::FrameBufferData frameBufferData = {};
@@ -131,16 +131,12 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext, BufferData::FrameBufferDa
 	}
 
 	{
-		const float x = 0.f;
-		const float y = 0.f;
-		const float z = 10.f;
-
 		BufferData::ObjectBufferData objectBufferData
 		{ 
 			1.f, 0.f, 0.f, 0.f,
 			0.f, 1.f, 0.f, 0.f,
 			0.f, 0.f, 1.f, 0.f,
-			x, y, z, 1.f
+			aTranslation.x, aTranslation.y, aTranslation.z, 1.f
 		};
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
