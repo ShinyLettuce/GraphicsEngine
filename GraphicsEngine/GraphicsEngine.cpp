@@ -101,7 +101,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 void GraphicsEngine::Update(const CommonUtilities::InputHandler& aInput)
 {
-	Vector3 deltaPos;
+	Vector3 deltaPos{ 0.0f, 0.0f, 0.0f };
 
 	if (aInput.IsKeyDown('W'))
 	{

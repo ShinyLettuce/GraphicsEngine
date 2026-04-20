@@ -1,6 +1,8 @@
-#include "pch.h"
 #include "InputHandler.h"
-#include <windowsx.h>
+#include "CoolerWindows.h"
+
+#define GET_X_PARAM(lParam) ((int)(short)((WORD)(((DWORD_PTR)(lParam)) & 0xffff)))
+#define GET_Y_PARAM(lParam) ((int)(short)((WORD)((((DWORD_PTR)(lParam)) >> 16) & 0xffff)))
 
 CommonUtilities::InputHandler::InputHandler():
 	myCurrentState{0},
@@ -39,8 +41,8 @@ bool CommonUtilities::InputHandler::UpdateEvents(UINT message, WPARAM wParam, LP
 			myInputState[VK_MBUTTON] = false;
 			return true;;
 		case WM_MOUSEMOVE:
-			myInputMousePosition.x = GET_X_LPARAM(lParam);
-			myInputMousePosition.y = GET_Y_LPARAM(lParam);
+			myInputMousePosition.x = GET_X_PARAM(lParam);
+			myInputMousePosition.y = GET_Y_PARAM(lParam);
 			return true;;
 	}
 	return false;
@@ -68,7 +70,7 @@ bool CommonUtilities::InputHandler::isButtonDown(const int aMouseButton) const
 
 POINT CommonUtilities::InputHandler::GetDeltaMousePosition() const
 {
-	return POINT(myCurrentMousePosition.x - myPreviousMousePosition.x, myCurrentMousePosition.y - myPreviousMousePosition.y);
+	return POINT{ myCurrentMousePosition.x - myPreviousMousePosition.x, myCurrentMousePosition.y - myPreviousMousePosition.y };
 }
 
 POINT CommonUtilities::InputHandler::GetMousePosition() const

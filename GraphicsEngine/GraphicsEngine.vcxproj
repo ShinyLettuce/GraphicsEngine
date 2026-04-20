@@ -143,23 +143,16 @@
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="InsaneShape.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CoolerWindows.h" />
     <ClInclude Include="GraphicsEngine.h" />
-    <ClInclude Include="Model.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="InputHandler.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="InsaneShape.h" />
     <ClInclude Include="ObjLoader.h" />
-    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>

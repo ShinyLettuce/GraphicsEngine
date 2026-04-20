@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Triangle.h"
-#include "Object.h"
-#include "InsaneShape.h"
 #include "InputHandler.h"
 #include "Camera.h"
-#include "Model.h"
+#include "Mesh.h"
 
 #include <wrl/client.h>
 
@@ -31,8 +28,5 @@ private:
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
 
 	Camera myCamera;
-	Triangle myTriangle;
-	InsaneShape mySquare;
-	Object myObject;
 	Mesh myMesh;
 };
