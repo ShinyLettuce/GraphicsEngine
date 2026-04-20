@@ -1,13 +1,14 @@
 #pragma once
+#include "Matrix4x4.h"
 
 namespace BufferData
 {
 	struct alignas(16) FrameBufferData
 	{
-		float worldToClipMatrix[16];
+		Matrix4x4<float> worldToClipMatrix;
 	};
 	struct alignas(16) ObjectBufferData
 	{
-		float modelToWorldMatrix[16];
+		Matrix4x4<float> modelToWorldMatrix;
 	};
 }

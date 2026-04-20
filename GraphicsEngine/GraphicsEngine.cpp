@@ -150,7 +150,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 {
 	static constexpr float cameraSpeed = 10.f;
-	Vector3 deltaDir{ 0.0f, 0.0f, 0.0f };
+	Vector3<float> deltaDir{ 0.0f, 0.0f, 0.0f };
 
 	if (aInput.IsKeyDown('W'))
 	{
@@ -178,19 +178,10 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 		deltaDir.y += 1.f;
 	}
 
-	// Normalize
-	float dirLength = sqrt(deltaDir.x * deltaDir.x + deltaDir.y * deltaDir.y + deltaDir.z * deltaDir.z);
-	if (dirLength != 0)
-	{
-		deltaDir.x /= dirLength;
-		deltaDir.y /= dirLength;
-		deltaDir.z /= dirLength;
-	}
+	deltaDir.Normalize();
 
-	Vector3 CameraPosition = myCamera.GetPosition();
-	CameraPosition.x -= deltaDir.x * aDeltaTime * cameraSpeed;
-	CameraPosition.y -= deltaDir.y * aDeltaTime * cameraSpeed;
-	CameraPosition.z -= deltaDir.z * aDeltaTime * cameraSpeed;
+	Vector3<float> CameraPosition = myCamera.GetPosition();
+	CameraPosition -= deltaDir * aDeltaTime * cameraSpeed;
 
 	myCamera.SetPosition3(CameraPosition);
 }
