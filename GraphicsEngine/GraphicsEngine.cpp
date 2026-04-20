@@ -101,7 +101,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 {
 	static constexpr float cameraSpeed = 10.f;
-	Vector3 deltaDir{ 0.0f, 0.0f, 0.0f };
+	Vector3<float> deltaDir{ 0.0f, 0.0f, 0.0f };
 
 	if (aInput.IsKeyDown('W'))
 	{
@@ -129,19 +129,10 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 		deltaDir.y += 1.f;
 	}
 
-	// Normalize
-	float dirLength = sqrt(deltaDir.x * deltaDir.x + deltaDir.y * deltaDir.y + deltaDir.z * deltaDir.z);
-	if (dirLength != 0)
-	{
-		deltaDir.x /= dirLength;
-		deltaDir.y /= dirLength;
-		deltaDir.z /= dirLength;
-	}
+	deltaDir.Normalize();
 
-	Vector3 CameraPosition = myCamera.GetPosition();
-	CameraPosition.x -= deltaDir.x * aDeltaTime * cameraSpeed;
-	CameraPosition.y -= deltaDir.y * aDeltaTime * cameraSpeed;
-	CameraPosition.z -= deltaDir.z * aDeltaTime * cameraSpeed;
+	Vector3<float> CameraPosition = myCamera.GetPosition();
+	CameraPosition -= deltaDir * aDeltaTime * cameraSpeed;
 
 	myCamera.SetPosition3(CameraPosition);
 }
@@ -150,24 +141,6 @@ void GraphicsEngine::Render()
 {
 	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f};
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
-
-	const float pi = 3.1415927f;
-	const float deg2rad = pi / 180.f;
-
-	float farClip = 1000.f;
-	float nearClip = 0.1f;
-	float Yfov = 90 * deg2rad;
-
-	float zoomY = 1.f / tan(Yfov * 0.5f);
-	float zoomX = zoomY * (9.0f / 16.0f);
-
-	BufferData::FrameBufferData frameBufferData 
-	{
-		zoomX, 0.f, 0.f, 0.f,
-		0.f, zoomY, 0.f, 0.f,
-		0.f, 0.f, (farClip) / (farClip - nearClip), 1.f,
-		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
-	};
 
 	myMesh.Render(myContext.Get(), myCamera.GetFrameBufferData());
 

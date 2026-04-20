@@ -18,7 +18,7 @@ void Camera::Init(float aFarClip, float aNearClip, float aFOVinDeg, float aAspec
 	};
 }
 
-void Camera::SetPosition3(Vector3 aPosition)
+void Camera::SetPosition3(Vector3<float> aPosition)
 {
 	myProjectionMatrix.worldToClipMatrix[12] = aPosition.x;
 	myProjectionMatrix.worldToClipMatrix[13] = aPosition.y;
