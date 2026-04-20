@@ -3,6 +3,7 @@
 #include "Triangle.h"
 #include "Object.h"
 #include "InsaneShape.h"
+#include "Model.h"
 
 #include <wrl/client.h>
 
@@ -26,7 +27,5 @@ private:
 	ComPtr<IDXGISwapChain> mySwapChain;
 	ComPtr<ID3D11RenderTargetView>myBackBuffer;
 
-	Triangle myTriangle;
-	InsaneShape mySquare;
-	Object myObject;
+	Mesh myMesh;
 };

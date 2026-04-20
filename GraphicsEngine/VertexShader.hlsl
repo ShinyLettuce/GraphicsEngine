@@ -23,7 +23,8 @@ struct PixelInputType
 PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
-    output.position = mul(worldToClipMatrix, input.position);
+    float4x4 objectToScreen = mul(worldToClipMatrix, modelToWorldMatrix);
+    output.position = mul(objectToScreen, input.position);
     output.color = input.color;
     return output;
 }

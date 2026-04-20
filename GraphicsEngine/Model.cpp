@@ -1,60 +1,35 @@
-#include "Triangle.h"
+#include "Model.h"
 
-#include <d3d11.h>
+#include <string>
 #include <fstream>
 
-#include <cmath>
+#include <d3d11.h>
 
-struct alignas(16) Vertex
+bool Mesh::Init(ID3D11Device* aDevice, const std::vector<Vertex>&& aVertices, const std::vector<Index>&& aIndices)
 {
-	float x, y, z, w;
-	float r, g, b, a;
-};
+	myVertices = aVertices;
+	myIndices = aIndices;
 
-Triangle::Triangle() = default;
-Triangle::~Triangle() = default;
-
-bool Triangle::Initialize(ID3D11Device* aDevice)
-{
 	HRESULT result;
-
-	Vertex vertices[3]
-	{
-		{ -200.f, -200.f, 100.f, 1.f, 1, 0, 0, 1},
-		{ 0.0f, 200.f, 0.f, 1.f, 0, 1, 0, 1},
-		{ 200.f, -200.f, 0.f, 1.f, 0, 0, 1, 1}
-	};
-
-	unsigned int indices[3]
-	{
-		0, 1, 2
-	};
 
 	const float pi = 3.1415927f;
 	const float deg2rad = pi / 180.f;
 
 	float farClip = 1000.f;
 	float nearClip = 0.1f;
-	float Yfov = 90.f * deg2rad;
+	float Yfov = 90 * deg2rad;
 
 	float zoomY = 1.f / tan(Yfov * 0.5f);
 	float zoomX = zoomY * (9.0f / 16.0f);
 
-	myCamera = {
-		zoomX, 0.f, 0.f, 0.f,
-		0.f, zoomY, 0.f, 0.f,
-		0.f, 0.f, (farClip) / (farClip - nearClip), 1.0f,
-		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
-	};
-
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
-		vertexBufferDesc.ByteWidth = sizeof vertices;
+		vertexBufferDesc.ByteWidth = sizeof(Vertex) * (UINT)myVertices.size();
 		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 		D3D11_SUBRESOURCE_DATA vertexData{ 0 };
-		vertexData.pSysMem = vertices;
+		vertexData.pSysMem = myVertices.data();
 
 		result = aDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &myVertexBuffer);
 
@@ -67,14 +42,13 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 	{
 		D3D11_BUFFER_DESC indexBufferDesc{ 0 };
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof indices;
+		indexBufferDesc.ByteWidth = sizeof(Vertex) * (UINT)myIndices.size();
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 		D3D11_SUBRESOURCE_DATA indexData{ 0 };
-		indexData.pSysMem = indices;
+		indexData.pSysMem = myIndices.data();
 
 		result = aDevice->CreateBuffer(&indexBufferDesc, &indexData, &myIndexBuffer);
-
 		if (FAILED(result))
 		{
 			return false;
@@ -144,13 +118,11 @@ bool Triangle::Initialize(ID3D11Device* aDevice)
 	return true;
 }
 
-void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
+void Mesh::Render(ID3D11DeviceContext* aDeviceContext, BufferData::FrameBufferData aCamera)
 {
 	{
-		//set up camera on the GPU
-
 		BufferData::FrameBufferData frameBufferData = {};
-		frameBufferData = myCamera;
+		frameBufferData = aCamera;
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		aDeviceContext->Map(myFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 		memcpy(mappedBuffer.pData, &frameBufferData, sizeof(BufferData::FrameBufferData));
@@ -159,12 +131,17 @@ void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 	}
 
 	{
-		//Prepare ObjectBufferData, set up transform of the object on the GPU
-		BufferData::ObjectBufferData objectBufferData = {};
-		objectBufferData = {1.f, 0.f, 0.f, 0.f,
-							0.f, 1.f, 0.f, 0.f,
-							0.f, 0.f, 1.f, 0.f,
-							0.f, 0.f, 0.f, 1.f};
+		const float x = 0.f;
+		const float y = 0.f;
+		const float z = 10.f;
+
+		BufferData::ObjectBufferData objectBufferData
+		{ 
+			1.f, 0.f, 0.f, 0.f,
+			0.f, 1.f, 0.f, 0.f,
+			0.f, 0.f, 1.f, 0.f,
+			x, y, z, 1.f
+		};
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 		aDeviceContext->Map(myObjectBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -174,8 +151,6 @@ void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 		aDeviceContext->VSSetConstantBuffers(1, 1, myObjectBuffer.GetAddressOf());
 	}
 
-	//Code to render mesh, REPLACE
-
 	aDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	aDeviceContext->IASetInputLayout(myInputLayout.Get());
 	unsigned int stride = sizeof(Vertex);
@@ -184,5 +159,5 @@ void Triangle::Render(ID3D11DeviceContext* aDeviceContext)
 	aDeviceContext->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	aDeviceContext->VSSetShader(myVertexShader.Get(), nullptr, 0);
 	aDeviceContext->PSSetShader(myPixelShader.Get(), nullptr, 0);
-	aDeviceContext->DrawIndexed(3, 0, 0);
+	aDeviceContext->DrawIndexed((UINT)myIndices.size(), 0, 0);
 }

@@ -1,4 +1,7 @@
 #include "GraphicsEngine.h"
+
+#include "ObjLoader.h"
+
 #include <d3d11.h>
 #pragma comment (lib, "d3d11.lib")
 
@@ -67,12 +70,19 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	viewport.MaxDepth = 1.0f;
 	myContext->RSSetViewports(1, &viewport);
 
-	if (!myTriangle.Initialize(myDevice.Get()))
-	{
-		return false;
-	}
+	ObjLoader::Obj obj = ObjLoader::Load("C:/Users/vilgotoscardexter.b/source/repos/GraphicsEngine/GraphicsEngine/LittleGuy.model");
 
-	if (!myObject.Initialize(myDevice.Get()))
+	const bool success = myMesh.Init(myDevice.Get(),
+		{
+			{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{  0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{  1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+		},
+		{
+			0, 1, 2
+		});
+
+	if (!success)
 	{
 		return false;
 	}
@@ -84,21 +94,33 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	float squareColor[3] = { 0.9f, 0.0f, 0.0f };
 
-	if (!mySquare.Initialize(myDevice.Get(), squarePos, squareColor))
-	{
-		return false;
-	}
 	return true;
 }
 
 void GraphicsEngine::Render()
 {
-	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f}; // RGBA
+	float color[4] = { 1.0f, 0.3f, 0.2f, 1.0f};
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 
-	myTriangle.Render(myContext.Get());
-	myObject.Render(myContext.Get());
-	mySquare.Render(myContext.Get());
+	const float pi = 3.1415927f;
+	const float deg2rad = pi / 180.f;
+
+	float farClip = 1000.f;
+	float nearClip = 0.1f;
+	float Yfov = 90 * deg2rad;
+
+	float zoomY = 1.f / tan(Yfov * 0.5f);
+	float zoomX = zoomY * (9.0f / 16.0f);
+
+	BufferData::FrameBufferData frameBufferData 
+	{
+		zoomX, 0.f, 0.f, 0.f,
+		0.f, zoomY, 0.f, 0.f,
+		0.f, 0.f, (farClip) / (farClip - nearClip), 1.f,
+		0.f, 0.f, (-nearClip * farClip) / (farClip - nearClip), 0.f
+	};
+
+	myMesh.Render(myContext.Get(), frameBufferData);
 
 	mySwapChain->Present(1, 0);
 }

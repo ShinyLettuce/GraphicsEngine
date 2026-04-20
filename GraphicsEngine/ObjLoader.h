@@ -29,7 +29,7 @@ namespace ObjLoader
 		std::vector<ObjIndex> indices;
 	};
 
-	Obj Load(const char* aFilePath)
+	inline Obj Load(const char* aFilePath)
 	{
 		enum LoadState
 		{

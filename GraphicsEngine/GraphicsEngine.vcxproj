@@ -130,7 +130,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <FxCompile>
@@ -141,8 +141,10 @@
   <ItemGroup>
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="InsaneShape.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +152,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CoolerWindows.h" />
     <ClInclude Include="GraphicsEngine.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="InsaneShape.h" />
     <ClInclude Include="ObjLoader.h" />
