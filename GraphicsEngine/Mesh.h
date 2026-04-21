@@ -31,6 +31,10 @@ public:
 		} normal;
 		struct
 		{
+			float u, v;
+		} uv;
+		struct
+		{
 			float x, y, z, w;
 		} color;
 	};

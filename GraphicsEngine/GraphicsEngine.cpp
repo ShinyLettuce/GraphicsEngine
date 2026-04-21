@@ -94,6 +94,30 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
+	{
+		// Create a texture sampler state description.
+		D3D11_SAMPLER_DESC samplerDesc;
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.MipLODBias = 0.0f;
+		samplerDesc.MaxAnisotropy = 1;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerDesc.BorderColor[0] = 0;
+		samplerDesc.BorderColor[1] = 0;
+		samplerDesc.BorderColor[2] = 0;
+		samplerDesc.BorderColor[3] = 0;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+		// Create the texture sampler state.
+		result = myDevice->CreateSamplerState(&samplerDesc, &mySamplerState);
+		if (FAILED(result))
+		{
+			return false;
+		}
+	}
+
 	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), myDepthBuffer.Get());
 
 	D3D11_VIEWPORT viewport = { };
@@ -110,11 +134,11 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myPyramidMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
 		{
-			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
-			{ 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+			{ 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f },
 		},
 		{
 			// Top faces
@@ -127,111 +151,111 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			0, 1, 2
 		});
 
-	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
-		{
-			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
-			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
-			{ -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{ 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
-			{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
-			{ 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
-		},
-		{
-			// Front face
-			0, 4, 5,
-			5, 1, 0,
-			// Top face
-			4, 6, 7,
-			7, 5, 4,
-			// Back face
-			3, 7, 6,
-			6, 2, 3,
-			// Bottom face
-			2, 0, 1,
-			1, 3, 2,
-			// Left face
-			2, 6, 4,
-			4, 0, 2,
-			// Right face
-			1, 5, 7,
-			7, 3, 1
-		});
-
-	if (!success)
-	{
-		return false;
-	}
-
-	{
-		Obj::Obj obj = Obj::LoadFromFile("Hand.model");
-
-		std::vector<Mesh::Vertex> vertices;
-		std::vector<Mesh::Index> indices;
-
-		vertices.reserve(obj.vertices.size());
-		vertices.resize(obj.vertices.size());
-
-		for (const auto& face : obj.faces)
-		{
-			vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
-			vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
-			vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
-			vertices.at(face.vertex).position.w = 1.0f;
-
-			vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
-			vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
-			vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
-
-			indices.push_back(face.vertex);
-		}
-
-		success = myHandMesh.Init(myDevice.Get(), "VertexShader.cso", "CrazyPixelShader.cso", vertices, indices);
-
-		if (!success)
-		{
-			return false;
-		}
-	}
-
-	{
-		{
-			Obj::Obj obj = Obj::LoadFromFile("Dragon.model");
-
-			std::vector<Mesh::Vertex> vertices;
-			std::vector<Mesh::Index> indices;
-
-			vertices.reserve(obj.vertices.size());
-			vertices.resize(obj.vertices.size());
-
-			for (const auto& face : obj.faces)
-			{
-				vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
-				vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
-				vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
-				vertices.at(face.vertex).position.w = 1.0f;
-
-				vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
-				vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
-				vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
-
-				indices.push_back(face.vertex);
-			}
-
-			success = myDragonMesh.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", vertices, indices);
-
-			if (!success)
-			{
-				return false;
-			}
-		}
-	}
-
-	if (!success)
-	{
-		return false;
-	}
+	//success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
+	//	{
+	//		{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+	//		{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+	//		{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+	//		{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
+	//		{ -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+	//		{ 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+	//		{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
+	//		{ 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+	//	},
+	//	{
+	//		// Front face
+	//		0, 4, 5,
+	//		5, 1, 0,
+	//		// Top face
+	//		4, 6, 7,
+	//		7, 5, 4,
+	//		// Back face
+	//		3, 7, 6,
+	//		6, 2, 3,
+	//		// Bottom face
+	//		2, 0, 1,
+	//		1, 3, 2,
+	//		// Left face
+	//		2, 6, 4,
+	//		4, 0, 2,
+	//		// Right face
+	//		1, 5, 7,
+	//		7, 3, 1
+	//	});
+	//
+	//if (!success)
+	//{
+	//	return false;
+	//}
+	//
+	//{
+	//	Obj::Obj obj = Obj::LoadFromFile("Hand.model");
+	//
+	//	std::vector<Mesh::Vertex> vertices;
+	//	std::vector<Mesh::Index> indices;
+	//
+	//	vertices.reserve(obj.vertices.size());
+	//	vertices.resize(obj.vertices.size());
+	//
+	//	for (const auto& face : obj.faces)
+	//	{
+	//		vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
+	//		vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
+	//		vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
+	//		vertices.at(face.vertex).position.w = 1.0f;
+	//
+	//		vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
+	//		vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
+	//		vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
+	//
+	//		indices.push_back(face.vertex);
+	//	}
+	//
+	//	success = myHandMesh.Init(myDevice.Get(), "VertexShader.cso", "CrazyPixelShader.cso", vertices, indices);
+	//
+	//	if (!success)
+	//	{
+	//		return false;
+	//	}
+	//}
+	//
+	//{
+	//	{
+	//		Obj::Obj obj = Obj::LoadFromFile("Dragon.model");
+	//
+	//		std::vector<Mesh::Vertex> vertices;
+	//		std::vector<Mesh::Index> indices;
+	//
+	//		vertices.reserve(obj.vertices.size());
+	//		vertices.resize(obj.vertices.size());
+	//
+	//		for (const auto& face : obj.faces)
+	//		{
+	//			vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
+	//			vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
+	//			vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
+	//			vertices.at(face.vertex).position.w = 1.0f;
+	//
+	//			vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
+	//			vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
+	//			vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
+	//
+	//			indices.push_back(face.vertex);
+	//		}
+	//
+	//		success = myDragonMesh.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", vertices, indices);
+	//
+	//		if (!success)
+	//		{
+	//			return false;
+	//		}
+	//	}
+	//}
+	//
+	//if (!success)
+	//{
+	//	return false;
+	//}
 
 	float farClip = 1000.f;
 	float nearClip = 0.1f;
@@ -320,9 +344,9 @@ void GraphicsEngine::Render()
 	myCamera.Bind(myContext.Get());
 
 	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
-	myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f });
-	myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
-	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
+	//myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f });
+	//myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
+	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
 	mySwapChain->Present(1, 0);
 }

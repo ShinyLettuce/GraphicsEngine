@@ -13,6 +13,7 @@ struct ID3D11DeviceContext;
 struct IDXGISwapChain;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
+struct ID3D11SamplerState;
 
 class GraphicsEngine
 {
@@ -28,6 +29,7 @@ private:
 	ComPtr<IDXGISwapChain> mySwapChain;
 	ComPtr<ID3D11RenderTargetView> myBackBuffer;
 	ComPtr<ID3D11DepthStencilView> myDepthBuffer;
+	ComPtr<ID3D11SamplerState> mySamplerState;
 
 	ComPtr<ID3D11Buffer> myPerFrameBuffer;
 

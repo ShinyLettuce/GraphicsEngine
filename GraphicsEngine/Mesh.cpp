@@ -12,16 +12,6 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 
 	HRESULT result;
 
-	const float pi = 3.1415927f;
-	const float deg2rad = pi / 180.f;
-
-	float farClip = 1000.f;
-	float nearClip = 0.1f;
-	float Yfov = 90 * deg2rad;
-
-	float zoomY = 1.f / tan(Yfov * 0.5f);
-	float zoomX = zoomY * (9.0f / 16.0f);
-
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
 		vertexBufferDesc.ByteWidth = sizeof(Vertex) * (UINT)myVertices.size();
@@ -97,14 +87,17 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 	}
 
 	{
-		D3D11_INPUT_ELEMENT_DESC layout[] =
+		const int numElements = 4;
+
+		D3D11_INPUT_ELEMENT_DESC layout[numElements]
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
-		result = aDevice->CreateInputLayout(layout, 3, vsData.data(), vsData.size(), &myInputLayout);
+		result = aDevice->CreateInputLayout(layout, numElements, vsData.data(), vsData.size(), &myInputLayout);
 		if (FAILED(result))
 		{
 			return false;
