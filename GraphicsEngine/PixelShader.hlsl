@@ -1,14 +1,4 @@
-struct PixelInputType
-{
-    float4 position : SV_POSITION;
-    float3 normal : NORMAL;
-    float4 color : COLOR;
-};
-
-struct PixelOutput
-{
-    float4 color : SV_TARGET;
-};
+#include "Common.hlsli"
 
 PixelOutput main(PixelInputType input)
 {

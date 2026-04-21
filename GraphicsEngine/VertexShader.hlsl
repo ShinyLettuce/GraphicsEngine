@@ -1,28 +1,4 @@
-cbuffer cameraBuffer : register(b0)
-{
-    float4x4 worldToClipMatrix;
-    float3 eyePosition;
-};
-
-cbuffer objectBuffer : register(b1)
-{
-    float4x4 modelToWorldMatrix;
-};
-
-struct VertexInputType
-{
-    float4 position : POSITION;
-    float3 normal : NORMAL;
-    float4 color : COLOR;
-};
-
-struct PixelInputType
-{
-    float4 screenPosition : SV_POSITION;
-    float3 normal : NORMAL;
-    float4 color : COLOR;
-    float4 worldPosition : POSITION;
-};
+#include "Common.hlsli"
 
 PixelInputType main(VertexInputType input)
 {

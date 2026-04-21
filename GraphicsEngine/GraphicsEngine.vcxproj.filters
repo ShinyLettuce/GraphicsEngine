@@ -21,15 +21,6 @@
     <ClCompile Include="GraphicsEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Triangle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InsaneShape.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,7 +30,7 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
+    <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,15 +41,6 @@
     <ClInclude Include="GraphicsEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InsaneShape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BufferData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,9 +48,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BufferData.h">
@@ -86,11 +65,35 @@
     <ClInclude Include="Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix3x3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4x4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="PixelShader.hlsl" />
     <FxCompile Include="CrazyPixelShader.hlsl" />
     <FxCompile Include="InsanePixelShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common.hlsli" />
   </ItemGroup>
 </Project>
