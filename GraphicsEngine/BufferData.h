@@ -3,16 +3,16 @@
 #include "Matrix3x3.h"
 #include "Vector3.h"
 
-namespace BufferData
+namespace Buffer
 {
-	struct alignas(16) VertexFrameBufferData
+	struct alignas(16) PerCameraBuffer
 	{
 		Matrix4x4<float> worldToClipMatrix;
+		Vector3<float> eyePosition;
 	};
 
-	struct alignas(16) PixelFrameBufferData
+	struct alignas(16) PerFrameBuffer
 	{
-		Vector3<float> eyePosition;
 		float time;
 	};
 

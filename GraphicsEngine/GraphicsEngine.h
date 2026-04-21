@@ -29,6 +29,8 @@ private:
 	ComPtr<ID3D11RenderTargetView> myBackBuffer;
 	ComPtr<ID3D11DepthStencilView> myDepthBuffer;
 
+	ComPtr<ID3D11Buffer> myPerFrameBuffer;
+
 	Camera myCamera;
 	Mesh myPyramidMesh;
 	Mesh myCubeMesh;

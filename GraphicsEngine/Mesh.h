@@ -39,13 +39,11 @@ public:
 
 	bool Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>& aVertices, const std::vector<Index>& aIndices);
 
-	void Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, BufferData::VertexFrameBufferData aVertexFrameBufferData, BufferData::PixelFrameBufferData aPixelFrameBufferData);
+	void Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation);
 private:
 	std::vector<Vertex> myVertices;
 	std::vector<Index> myIndices;
 
-	ComPtr<ID3D11Buffer> myVertexFrameBuffer;
-	ComPtr<ID3D11Buffer> myPixelFrameBuffer;
 	ComPtr<ID3D11Buffer> myPerObjectBuffer;
 
 	ComPtr<ID3D11Buffer> myVertexBuffer;

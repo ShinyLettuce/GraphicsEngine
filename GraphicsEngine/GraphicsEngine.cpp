@@ -82,6 +82,18 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	myDevice->CreateTexture2D(&depthTextureDesc, nullptr, &depthBufferTexture);
 	myDevice->CreateDepthStencilView(depthBufferTexture.Get(), &depthBufferDesc, &myDepthBuffer);
 
+	D3D11_BUFFER_DESC pixelBufferDesc{ 0 };
+	pixelBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	pixelBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	pixelBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	pixelBufferDesc.ByteWidth = sizeof(Buffer::PerFrameBuffer);
+	result = myDevice->CreateBuffer(&pixelBufferDesc, nullptr, &myPerFrameBuffer);
+
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), myDepthBuffer.Get());
 
 	D3D11_VIEWPORT viewport = { };
@@ -225,7 +237,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	float nearClip = 0.1f;
 	float Yfov = 90;
 	float aspect = (9.0f / 16.0f);
-	myCamera.Init(farClip, nearClip, Yfov, aspect);
+	myCamera.Init(myDevice.Get(), farClip, nearClip, Yfov, aspect);
 
 	return true;
 }
@@ -290,28 +302,27 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 
 void GraphicsEngine::Render()
 {
-	const float color[4]{ 89.0f / 1023.0f * (89.0f / 83.0f), 0.0f, 25.0f / 1023.0f * (25.0f / 45.0f), 1.0f};
+	const float color[4]{ 0.0f, 0.0f, 0.0f, 1.0f };
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	Matrix4x4<float> transform = {
-		Matrix4x4<float>::CreateRotationAroundX(myCamera.GetRotation().x) *
-		Matrix4x4<float>::CreateRotationAroundY(myCamera.GetRotation().y) *
-		Matrix4x4<float>{
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		myCamera.GetPosition().x, myCamera.GetPosition().y, myCamera.GetPosition().z, 1,
-		}
-	};
+	{
+		Buffer::PerFrameBuffer perFrameBuffer;
+		perFrameBuffer.time = myTime;
 
-	BufferData::VertexFrameBufferData vertexBufferData = { transform.GetFastInverse() * myCamera.GetFrameBufferData().worldToClipMatrix };
-	BufferData::PixelFrameBufferData pixelBufferData = { myCamera.GetPosition(), myTime };
+		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+		myContext->Map(myPerFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+		memcpy(mappedBuffer.pData, &perFrameBuffer, sizeof(Buffer::PerFrameBuffer));
+		myContext->Unmap(myPerFrameBuffer.Get(), 0);
+		myContext->PSSetConstantBuffers(1, 1, myPerFrameBuffer.GetAddressOf());
+	}
 
-	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f }, vertexBufferData, pixelBufferData);
-	myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f }, vertexBufferData, pixelBufferData);
-	myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f }, vertexBufferData, pixelBufferData);
-	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f }, vertexBufferData, pixelBufferData);
+	myCamera.Bind(myContext.Get());
+
+	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
+	myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f });
+	myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
+	myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
 	mySwapChain->Present(1, 0);
 }

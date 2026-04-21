@@ -1,6 +1,7 @@
-cbuffer frameBuffer : register(b0)
+cbuffer cameraBuffer : register(b0)
 {
     float4x4 worldToClipMatrix;
+    float3 eyePosition;
 };
 
 cbuffer objectBuffer : register(b1)
