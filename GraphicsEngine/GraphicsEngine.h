@@ -3,6 +3,7 @@
 #include "InputHandler.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Texture.h"
 
 #include <wrl/client.h>
 
@@ -38,6 +39,8 @@ private:
 	Mesh myCubeMesh;
 	Mesh myHandMesh;
 	Mesh myDragonMesh;
+
+	Texture myTexture;
 
 	float myTime{ 0.0f };
 };

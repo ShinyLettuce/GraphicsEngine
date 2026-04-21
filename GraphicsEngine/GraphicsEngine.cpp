@@ -1,6 +1,7 @@
 #include "GraphicsEngine.h"
 
 #include "ObjLoader.h"
+#include "stb_image.h"
 
 #include <d3d11.h>
 #pragma comment (lib, "d3d11.lib")
@@ -257,11 +258,33 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	//	return false;
 	//}
 
-	float farClip = 1000.f;
-	float nearClip = 0.1f;
-	float Yfov = 90;
-	float aspect = (9.0f / 16.0f);
-	myCamera.Init(myDevice.Get(), farClip, nearClip, Yfov, aspect);
+	const float farClip = 1000.f;
+	const float nearClip = 0.1f;
+	const float Yfov = 90.f;
+	const float aspect = (9.0f / 16.0f);
+	success = myCamera.Init(myDevice.Get(), farClip, nearClip, Yfov, aspect);
+	if (!success)
+	{
+		return false;
+	}
+
+	int width;
+	int height;
+	int channels;
+	unsigned char* image = stbi_load("qrikko.jpg", &width, &height, &channels, 4);
+	if (image == nullptr)
+	{
+		return false;
+	}
+
+	success = myTexture.Initialize(myDevice.Get(), image, width, height);
+
+	stbi_image_free(image);
+
+	if (!success)
+	{	
+		return false;
+	}
 
 	return true;
 }
@@ -342,6 +365,8 @@ void GraphicsEngine::Render()
 	}
 
 	myCamera.Bind(myContext.Get());
+
+	myTexture.Bind(myContext.Get(), 0);
 
 	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
 	//myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f });
