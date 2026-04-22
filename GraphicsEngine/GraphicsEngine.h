@@ -15,6 +15,7 @@ struct IDXGISwapChain;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11SamplerState;
+struct ID3D11RasterizerState;
 
 class GraphicsEngine
 {
@@ -33,6 +34,9 @@ private:
 	ComPtr<ID3D11SamplerState> mySamplerState;
 
 	ComPtr<ID3D11Buffer> myPerFrameBuffer;
+
+	ComPtr<ID3D11RasterizerState> myDefaultRasterizerState;
+	ComPtr<ID3D11RasterizerState> myRaymarchRasterizerState;
 
 	Camera myCamera;
 	Mesh myPyramidMesh;

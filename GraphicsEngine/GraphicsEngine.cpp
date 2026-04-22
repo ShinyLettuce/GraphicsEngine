@@ -131,6 +131,18 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	myContext->RSSetViewports(1, &viewport);
 
+	D3D11_RASTERIZER_DESC defaultRasterizerDesc{ };
+	defaultRasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	defaultRasterizerDesc.CullMode = D3D11_CULL_BACK;
+
+	myDevice->CreateRasterizerState(&defaultRasterizerDesc, &myDefaultRasterizerState);
+
+	D3D11_RASTERIZER_DESC raymarchRasterizerDesc{ };
+	raymarchRasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	raymarchRasterizerDesc.CullMode = D3D11_CULL_NONE;
+
+	myDevice->CreateRasterizerState(&raymarchRasterizerDesc, &myRaymarchRasterizerState);
+
 	bool success;
 
 	success = myPyramidMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
@@ -152,43 +164,43 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			0, 1, 2
 		});
 
-	//success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
-	//	{
-	//		{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
-	//		{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-	//		{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-	//		{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
-	//		{ -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-	//		{ 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
-	//		{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
-	//		{ 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
-	//	},
-	//	{
-	//		// Front face
-	//		0, 4, 5,
-	//		5, 1, 0,
-	//		// Top face
-	//		4, 6, 7,
-	//		7, 5, 4,
-	//		// Back face
-	//		3, 7, 6,
-	//		6, 2, 3,
-	//		// Bottom face
-	//		2, 0, 1,
-	//		1, 3, 2,
-	//		// Left face
-	//		2, 6, 4,
-	//		4, 0, 2,
-	//		// Right face
-	//		1, 5, 7,
-	//		7, 3, 1
-	//	});
-	//
-	//if (!success)
-	//{
-	//	return false;
-	//}
-	//
+	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
+		{
+			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f },
+			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f },
+			{ -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+			{ 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+			{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
+			{ 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+		},
+		{
+			// Front face
+			0, 4, 5,
+			5, 1, 0,
+			// Top face
+			4, 6, 7,
+			7, 5, 4,
+			// Back face
+			3, 7, 6,
+			6, 2, 3,
+			// Bottom face
+			2, 0, 1,
+			1, 3, 2,
+			// Left face
+			2, 6, 4,
+			4, 0, 2,
+			// Right face
+			1, 5, 7,
+			7, 3, 1
+		});
+	
+	if (!success)
+	{
+		return false;
+	}
+	
 	//{
 	//	Obj::Obj obj = Obj::LoadFromFile("Hand.model");
 	//
@@ -219,7 +231,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	//		return false;
 	//	}
 	//}
-	//
+	
 	//{
 	//	{
 	//		Obj::Obj obj = Obj::LoadFromFile("Dragon.model");
@@ -252,11 +264,11 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	//		}
 	//	}
 	//}
-	//
-	//if (!success)
-	//{
-	//	return false;
-	//}
+	
+	if (!success)
+	{
+		return false;
+	}
 
 	const float farClip = 1000.f;
 	const float nearClip = 0.1f;
@@ -349,7 +361,7 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 
 void GraphicsEngine::Render()
 {
-	const float color[4]{ 0.0f, 0.0f, 0.0f, 1.0f };
+	const float color[4]{ 0.05f, 0.05f, 0.05f, 1.0f };
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -368,10 +380,13 @@ void GraphicsEngine::Render()
 
 	myTexture.Bind(myContext.Get(), 0);
 
+	myContext->RSSetState(myDefaultRasterizerState.Get());
 	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
-	//myCubeMesh.Render(myContext.Get(), { 3.0f, -0.2f, 5.5f });
 	//myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
+
+	myContext->RSSetState(myRaymarchRasterizerState.Get());
+	myCubeMesh.Render(myContext.Get(), myCamera.GetPosition());
 
 	mySwapChain->Present(1, 0);
 }

@@ -26,7 +26,7 @@ public:
 private:
 
 	float myFarClip = 1000.f;
-	float myNearClip = 0.1f;
+	float myNearClip = 0.01f;
 	float myYfov = 90 * 3.1415927f / 180.f;
 
 	Vector3<float> myRotation;
