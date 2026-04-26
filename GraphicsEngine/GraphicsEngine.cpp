@@ -117,6 +117,9 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		{
 			return false;
 		}
+
+		myContext->VSSetSamplers(0, 1, mySamplerState.GetAddressOf());
+		myContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 	}
 
 	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), myDepthBuffer.Get());
@@ -283,7 +286,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	int width;
 	int height;
 	int channels;
-	unsigned char* image = stbi_load("qrikko.jpg", &width, &height, &channels, 4);
+	unsigned char* image = stbi_load("clouds.png", &width, &height, &channels, 4);
 	if (image == nullptr)
 	{
 		return false;
@@ -380,8 +383,9 @@ void GraphicsEngine::Render()
 
 	myTexture.Bind(myContext.Get(), 0);
 
+
 	myContext->RSSetState(myDefaultRasterizerState.Get());
-	myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
+	//myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
 	//myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
