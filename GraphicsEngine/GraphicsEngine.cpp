@@ -419,7 +419,7 @@ void GraphicsEngine::Render()
 
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
-	myPyramidMesh.Render(myContext.Get(), { 15.0f, 0.2f, 0.f });
+	myPyramidMesh.Render(myContext.Get(), { 25.0f, 0.2f, 0.f }, Vector3<float>{ 10.0f, 10.0f, 10.0f });
 	//myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
