@@ -286,7 +286,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	int width;
 	int height;
 	int channels;
-	unsigned char* image = stbi_load("clouds.png", &width, &height, &channels, 4);
+	unsigned char* image = stbi_load("qrikko.jpg", &width, &height, &channels, 4);
 	if (image == nullptr)
 	{
 		return false;

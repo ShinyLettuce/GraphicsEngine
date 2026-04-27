@@ -1,12 +1,12 @@
 #include "Common.hlsli"
 
-#define MAX_RAYMARCH_STEP_COUNT 128
+#define MAX_RAYMARCH_STEP_COUNT 512
 #define MIN_SURFACE_DISTANCE 0.001f
 #define MAX_DISTANCE 50
 
 float2 GetWaterUV(float3 p)
 {
-    return (p.xz * 0.01f) + float2(1.0f, 0.0f) * time * 0.01f;
+    return (p.xz * 0.1f) + float2(1.0f, 0.0f) * time * 0.1f;
 }
 
 float GetDistanceToCylinder(float3 p, float r, float h)
@@ -15,22 +15,24 @@ float GetDistanceToCylinder(float3 p, float r, float h)
     return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
+float GetDistanceToSphere(float3 p, float radius)
+{
+    return length(p) - radius;
+}
+
 float GetDistanceToWater(float3 p)
 {
     float d = p.y - 0.5f;
     float h = 0.0f;
-    //h += aTexture.Sample(aSampler, GetWaterUV(p, float2(1.0f, 0.0f))).r * 3.0f;
-    h += aTexture.Sample(aSampler, GetWaterUV(p)).r * 1.0f;
-    //h += aTexture.Sample(aSampler, GetWaterUV(p, normalize(float2(1.0f, 1.0f)))).r * 3.0f;
+    h += aTexture.Sample(aSampler, GetWaterUV(p)).r * 0.4f;
     return d + h;
 }
 
 float GetDistanceToScene(float3 p)
 {
     float d1 = GetDistanceToWater(p);
-    float d2 = GetDistanceToCylinder(p, 2.5f, 4.0f);
-    float d3 = GetDistanceToCylinder(p - float3(-3.5f, 0.0f, 0.0f), 1.2f, 2.0f);
-    return max(d1, min(d2, d3));
+    float d2 = GetDistanceToSphere(p, 8.0f);
+    return max(d1, d2);
 }
 
 float Raymarch(float3 rayOrigin, float3 rayDirection)
@@ -77,12 +79,11 @@ PixelOutput main(PixelInputType input)
     
     if (distance < MAX_DISTANCE)
     {
-        //result.color.rg = abs(p.xz) % 1.0f;
-        //result.color.a = 1.0f;
-        
         float value = saturate((1.0f - dot(normal, float3(0.0f, 1.0f, 0.0f))) / 0.2f);
         float3 color = lerp(float3(171, 240, 255) / 255, float3(34, 57, 99) / 255, value);
-        result.color.rgb = normal; //aTexture.Sample(aSampler, GetWaterUV(p, float2(1.0f, 0.0f)));
+        result.color.rgb = aTexture.Sample(aSampler, GetWaterUV(p));
+        result.color.rgb *= saturate(dot(normal, float3(0.0f, 1.0f, 0.0f)));
+
     }
     else
     {
