@@ -79,12 +79,11 @@ PixelOutput main(PixelInputType input)
     if (d < MAX_DISTANCE)
     {
         float value = aTexture.Sample(aSampler, GetWaterUV(p));
-        float3 color = lerp(float3(171, 240, 255) / 255, float3(34, 57, 99) / 255, value);
         float3 lightPosition = float3(cos(time) * 5.0f, 3.0f, sin(time) * 5.0f);
         float distanceToLight = distance(lightPosition, p);
         float lightByDistance = 1.0f / (distanceToLight * distanceToLight);
         float lightByAngle = saturate(dot(normal, normalize(lightPosition - p)) * 0.5f + 0.5f);
-        result.color.rgb = color * (lightByDistance * 2.0f * lightByAngle);
+        result.color.rgb = (lightByDistance * 2.0f * lightByAngle);
     }
     else
     {
