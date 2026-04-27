@@ -3,7 +3,7 @@
 PixelOutput main(PixelInputType input)
 {
     PixelOutput result;
-    result.color = aTexture.Sample(aSampler, input.uv);
+    result.color = aCodeTexture.Sample(aSampler, input.uv);
     
     return result;
 }

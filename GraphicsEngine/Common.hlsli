@@ -15,6 +15,8 @@ cbuffer frameBuffer : register(b1)
 }
 
 Texture2D aTexture : register(t0);
+Texture2D aCodeTexture : register(t1);
+
 SamplerState aSampler : register(s0);
 
 struct VertexInputType

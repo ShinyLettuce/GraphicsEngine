@@ -44,7 +44,8 @@ private:
 	Mesh myHandMesh;
 	Mesh myDragonMesh;
 
-	Texture myTexture;
+	Texture myLoadedTexture;
+	Texture myCodeTexture;
 
 	float myTime{ 0.0f };
 };

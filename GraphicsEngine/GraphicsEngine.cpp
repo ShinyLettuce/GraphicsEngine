@@ -292,12 +292,45 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
-	success = myTexture.Initialize(myDevice.Get(), image, width, height);
+	success = myLoadedTexture.Initialize(myDevice.Get(), image, width, height);
 
 	stbi_image_free(image);
 
 	if (!success)
 	{	
+		return false;
+	}
+
+	struct PixelColor
+	{
+		unsigned char r;
+		unsigned char g;
+		unsigned char b;
+		unsigned char a;
+	};
+
+	constexpr int arrWidth = 256;
+	unsigned char codeTexture[arrWidth * arrWidth * sizeof(PixelColor)] = {0};
+
+	for (int i = 0; i < arrWidth; ++i)
+	{
+		for (int j = 0; j < arrWidth; ++j)
+		{
+			PixelColor color = {.r = (unsigned char)j, .g = (unsigned char)i, .b = 0, .a = 1};
+
+			int currentPixel = (i * arrWidth + j) * sizeof(PixelColor);
+
+			codeTexture[currentPixel] = color.r;
+			codeTexture[currentPixel + 1] = color.g;
+			codeTexture[currentPixel + 2] = color.b;
+			codeTexture[currentPixel + 3] = color.a;
+		}
+	}
+
+	success = myCodeTexture.Initialize(myDevice.Get(), codeTexture, 256, 256);
+
+	if (!success)
+	{
 		return false;
 	}
 
@@ -381,11 +414,12 @@ void GraphicsEngine::Render()
 
 	myCamera.Bind(myContext.Get());
 
-	myTexture.Bind(myContext.Get(), 0);
+	myLoadedTexture.Bind(myContext.Get(), 0);
+	myCodeTexture.Bind(myContext.Get(), 1);
 
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
-	//myPyramidMesh.Render(myContext.Get(), { -3.0f, 0.2f, 5.5f });
+	myPyramidMesh.Render(myContext.Get(), { 15.0f, 0.2f, 0.f });
 	//myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
