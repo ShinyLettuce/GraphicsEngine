@@ -107,15 +107,15 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 	return true;
 }
 
-void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation)
+void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, Vector3<float> aScaling)
 {
 	{
 		Buffer::PerObjectBufferData objectBufferData{
 			Matrix4x4<float>
 			{
-				1.f, 0.f, 0.f, 0.f,
-				0.f, 1.f, 0.f, 0.f,
-				0.f, 0.f, 1.f, 0.f,
+				aScaling.x, 0.f, 0.f, 0.f,
+				0.f, aScaling.y, 0.f, 0.f,
+				0.f, 0.f, aScaling.z, 0.f,
 				aTranslation.x, aTranslation.y, aTranslation.z, 1.f
 			} 
 		};

@@ -286,7 +286,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	int width;
 	int height;
 	int channels;
-	unsigned char* image = stbi_load("qrikko.jpg", &width, &height, &channels, 4);
+	unsigned char* image = stbi_load("clouds.png", &width, &height, &channels, 4);
 	if (image == nullptr)
 	{
 		return false;
@@ -390,7 +390,7 @@ void GraphicsEngine::Render()
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
 	myContext->RSSetState(myRaymarchRasterizerState.Get());
-	myCubeMesh.Render(myContext.Get(), myCamera.GetPosition());
+	myCubeMesh.Render(myContext.Get(), Vector3<float>{ 0.0f, -2.5f, 0.0f }, Vector3<float>{ 10.0f, 10.0f, 10.0f });
 
 	mySwapChain->Present(1, 0);
 }

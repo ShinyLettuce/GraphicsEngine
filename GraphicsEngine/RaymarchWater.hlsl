@@ -1,12 +1,12 @@
 #include "Common.hlsli"
 
-#define MAX_RAYMARCH_STEP_COUNT 512
-#define MIN_SURFACE_DISTANCE 0.001f
-#define MAX_DISTANCE 50
+#define MAX_RAYMARCH_STEP_COUNT 128
+#define MIN_SURFACE_DISTANCE 0.01f
+#define MAX_DISTANCE 128
 
 float2 GetWaterUV(float3 p)
 {
-    return (p.xz * 0.1f) + float2(1.0f, 0.0f) * time * 0.1f;
+    return (p.xz * 0.05f) + float2(1.0f, 0.0f) * time * 0.033f;
 }
 
 float GetDistanceToCylinder(float3 p, float r, float h)
@@ -22,9 +22,8 @@ float GetDistanceToSphere(float3 p, float radius)
 
 float GetDistanceToWater(float3 p)
 {
-    float d = p.y - 0.5f;
-    float h = 0.0f;
-    h += aTexture.Sample(aSampler, GetWaterUV(p)).r * 0.4f;
+    float d = p.y;
+    float h = aTexture.Sample(aSampler, GetWaterUV(p)).r * 1.5f;
     return d + h;
 }
 
@@ -56,7 +55,7 @@ float Raymarch(float3 rayOrigin, float3 rayDirection)
 
 float3 GetNormal(float3 p)
 {
-    float2 offset = float2(0.01f, 0.0f);
+    float2 offset = float2(0.05f, 0.0f);
     float3 normal = GetDistanceToScene(p) - float3(
             GetDistanceToScene(p-offset.xyy),
             GetDistanceToScene(p-offset.yxy),
@@ -71,23 +70,25 @@ PixelOutput main(PixelInputType input)
     float3 rayOrigin = eyePosition;
     float3 rayDirection = normalize(input.worldPosition.xyz - eyePosition);
     
-    float distance = Raymarch(rayOrigin, rayDirection);
+    float d = Raymarch(rayOrigin, rayDirection);
     
-    float3 p = rayOrigin + rayDirection * distance;
+    float3 p = rayOrigin + rayDirection * d;
     
     float3 normal = GetNormal(p);
     
-    if (distance < MAX_DISTANCE)
+    if (d < MAX_DISTANCE)
     {
-        float value = saturate((1.0f - dot(normal, float3(0.0f, 1.0f, 0.0f))) / 0.2f);
+        float value = aTexture.Sample(aSampler, GetWaterUV(p));
         float3 color = lerp(float3(171, 240, 255) / 255, float3(34, 57, 99) / 255, value);
-        result.color.rgb = aTexture.Sample(aSampler, GetWaterUV(p));
-        result.color.rgb *= saturate(dot(normal, float3(0.0f, 1.0f, 0.0f)));
-
+        float3 lightPosition = float3(cos(time) * 5.0f, 3.0f, sin(time) * 5.0f);
+        float distanceToLight = distance(lightPosition, p);
+        float lightByDistance = 1.0f / (distanceToLight * distanceToLight);
+        float lightByAngle = saturate(dot(normal, normalize(lightPosition - p)) * 0.5f + 0.5f);
+        result.color.rgb = color * (lightByDistance * 2.0f * lightByAngle);
     }
     else
     {
-        discard;
+        result.color.rgb = 0.0f;
     }
 
     return result;
