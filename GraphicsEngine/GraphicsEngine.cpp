@@ -327,7 +327,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		}
 	}
 
-	success = myCodeTexture.Initialize(myDevice.Get(), codeTexture, 256, 256);
+	success = myCodeTexture.Initialize(myDevice.Get(), codeTexture, arrWidth, arrWidth);
 
 	if (!success)
 	{
