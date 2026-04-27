@@ -87,7 +87,7 @@ PixelOutput main(PixelInputType input)
     }
     else
     {
-        result.color.rgb = 0.0f;
+        discard;
     }
 
     return result;
