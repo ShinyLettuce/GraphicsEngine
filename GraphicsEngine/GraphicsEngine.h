@@ -45,7 +45,7 @@ private:
 	Mesh myDragonMesh;
 
 	Texture myLoadedTexture;
-	Texture myCodeTexture;
+	Texture myNoiseTexture;
 
 	float myTime{ 0.0f };
 };

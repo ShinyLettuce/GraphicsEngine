@@ -107,6 +107,59 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 	return true;
 }
 
+bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, float aWidth, float aHeight, int aResolutionWidth, int aResolutionHeight)
+{
+	std::vector<Vertex> vertices;
+
+	for (int j = 0; j < aResolutionWidth; ++j)
+	{
+		for (int i = 0; i < aResolutionHeight; ++i)
+		{
+			Vertex vertex;
+			vertex.position.x = (float)i * (aWidth / aResolutionWidth);
+			vertex.position.y = 0.0f;
+			vertex.position.z = (float)j * (aHeight / aResolutionHeight);
+			vertex.position.w = 1.0f;
+			vertex.normal.x = 0.0f;
+			vertex.normal.y = 1.0f;
+			vertex.normal.z = 0.0f;
+			vertex.color.x = 1.0f;
+			vertex.color.y = 1.0f;
+			vertex.color.z = 1.0f;
+			vertex.color.w = 1.0f;
+			vertex.uv.u = (float)(j / (float)aResolutionWidth);
+			vertex.uv.v = (float)(i / (float)aResolutionWidth);
+
+			vertices.emplace_back(std::move(vertex));
+		}
+	}
+
+	std::vector<Index> indices;
+
+	for (int i = 0; i < aResolutionWidth - 1; ++i)
+	{
+		for (int j = 0; j < aResolutionHeight - 1; ++j)
+		{
+			Index face[4]
+			{
+				j * aResolutionWidth + i,
+				j * aResolutionWidth + i + 1,
+				(j + 1) * aResolutionWidth + i + 1,
+				(j + 1) * aResolutionWidth + i,
+			};
+
+			indices.push_back(face[2]);
+			indices.push_back(face[1]);
+			indices.push_back(face[0]);
+			indices.push_back(face[2]);
+			indices.push_back(face[0]);
+			indices.push_back(face[3]);
+		}
+	}
+
+	return Init(aDevice, aVertexShaderPath, aPixelShaderPath, vertices, indices);
+}
+
 void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, Vector3<float> aScaling)
 {
 	{

@@ -9,12 +9,29 @@
 #include <filesystem>
 #include <cmath>
 
+#include "uppgift_1_5_helper.h"
 #include "Vector.h"
 
 #define REPORT_DX_WARNINGS
 
 GraphicsEngine::GraphicsEngine() = default;
 GraphicsEngine::~GraphicsEngine() = default;
+
+float Clamp01(float aValue)
+{
+	if (aValue > 1.0f)
+	{
+		return 1.0f;
+	}
+	else if (aValue < 0.0f)
+	{
+		return 0.0f;
+	}
+	else
+	{
+		return aValue;
+	}
+}
 
 bool GraphicsEngine::Initialize(HWND windowHandle)
 {
@@ -148,24 +165,26 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	bool success;
 
-	success = myPyramidMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
-		{
-			{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-			{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-			{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f },
-			{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
-			{ 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f },
-		},
-		{
-			// Top faces
-			0, 4, 1,
-			1, 4, 2,
-			2, 4, 3,
-			3, 4, 0,
-			// Bottom face
-			2, 3, 0,
-			0, 1, 2
-		});
+	//success = myPyramidMesh.Init(myDevice.Get(), "VertexShader.cso", "PixelShader.cso",
+	//	{
+	//		{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f },
+	//		{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+	//		{ 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f },
+	//		{ -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+	//		{ 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f },
+	//	},
+	//	{
+	//		// Top faces
+	//		0, 4, 1,
+	//		1, 4, 2,
+	//		2, 4, 3,
+	//		3, 4, 0,
+	//		// Bottom face
+	//		2, 3, 0,
+	//		0, 1, 2
+	//	});
+
+	success = myPyramidMesh.InitPlane(myDevice.Get(), "VertexShader.cso", "PixelShader.cso", 10.0f, 10.0f, 128, 128);
 
 	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
 		{
@@ -297,37 +316,32 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	stbi_image_free(image);
 
 	if (!success)
-	{	
+	{
 		return false;
 	}
 
-	struct PixelColor
+	int initSize = 16;
+	std::vector<float> noise(initSize * initSize, 0.0f);
+	int octaves = 4;
+	float noiseAmount = 1.0f;
+
+	for (int i = 0; i < octaves; ++i)
 	{
-		unsigned char r;
-		unsigned char g;
-		unsigned char b;
-		unsigned char a;
-	};
-
-	constexpr int arrWidth = 256;
-	unsigned char codeTexture[arrWidth * arrWidth * sizeof(PixelColor)] = {0};
-
-	for (int i = 0; i < arrWidth; ++i)
-	{
-		for (int j = 0; j < arrWidth; ++j)
-		{
-			PixelColor color = {.r = (unsigned char)j, .g = (unsigned char)i, .b = 0, .a = 1};
-
-			int currentPixel = (i * arrWidth + j) * sizeof(PixelColor);
-
-			codeTexture[currentPixel] = color.r;
-			codeTexture[currentPixel + 1] = color.g;
-			codeTexture[currentPixel + 2] = color.b;
-			codeTexture[currentPixel + 3] = color.a;
-		}
+		AddNoise(noise, noiseAmount);
+		noise = Upsample2X(noise, initSize * (1 << i));
+		noiseAmount *= 0.25f;
 	}
 
-	success = myCodeTexture.Initialize(myDevice.Get(), codeTexture, arrWidth, arrWidth);
+	std::vector<unsigned char> texture;
+	for (float f : noise)
+	{
+		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
+		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
+		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
+		texture.emplace_back(0xff);
+	}
+
+	success = myNoiseTexture.Initialize(myDevice.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves));
 
 	if (!success)
 	{
@@ -415,7 +429,7 @@ void GraphicsEngine::Render()
 	myCamera.Bind(myContext.Get());
 
 	myLoadedTexture.Bind(myContext.Get(), 0);
-	myCodeTexture.Bind(myContext.Get(), 1);
+	myNoiseTexture.Bind(myContext.Get(), 1);
 
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
