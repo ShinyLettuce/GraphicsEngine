@@ -402,11 +402,11 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 
 	deltaDir.Normalize();
 
-	deltaDir *= aDeltaTime * cameraSpeed;
+	deltaDir *= cameraSpeed * aDeltaTime;
 	deltaDir = deltaDir * Matrix3x3<float>::CreateRotationAroundX(myCamera.GetRotation().x) * Matrix3x3<float>::CreateRotationAroundY(myCamera.GetRotation().y);
 
 	myCamera.SetPosition3(myCamera.GetPosition() + deltaDir);
-	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.f} * aDeltaTime });
+	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.f } * 0.01f });
 }
 
 void GraphicsEngine::Render()
@@ -438,7 +438,7 @@ void GraphicsEngine::Render()
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
 	myContext->RSSetState(myRaymarchRasterizerState.Get());
-	myCubeMesh.Render(myContext.Get(), Vector3<float>{ 0.0f, -2.5f, 0.0f }, Vector3<float>{ 10.0f, 10.0f, 10.0f });
+	myCubeMesh.Render(myContext.Get(), myCamera.GetPosition(), Vector3<float>{ 1.0f, 1.0f, 1.0f });
 
 	mySwapChain->Present(1, 0);
 }

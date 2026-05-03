@@ -60,8 +60,6 @@ void Camera::Bind(ID3D11DeviceContext* aDeviceContext)
 	aDeviceContext->Unmap(myPerCameraBuffer.Get(), 0);
 	aDeviceContext->VSSetConstantBuffers(0, 1, myPerCameraBuffer.GetAddressOf());
 	aDeviceContext->PSSetConstantBuffers(0, 1, myPerCameraBuffer.GetAddressOf());
-
-
 }
 
 void Camera::SetPosition3(Vector3<float> aPosition)
