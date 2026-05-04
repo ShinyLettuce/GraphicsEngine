@@ -20,6 +20,7 @@ bool Camera::Init(ID3D11Device* aDevice, float aFarClip, float aNearClip, float 
 		0.f, 0.f, (-myNearClip * myFarClip) / (myFarClip - myNearClip), 0.f
 	};
 
+	myPosition = Vector3<float>{ 32.0f, 1.0f, -16.0f };
 
 	D3D11_BUFFER_DESC vertexBufferDesc{ 0 };
 	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;

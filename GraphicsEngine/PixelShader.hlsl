@@ -11,6 +11,7 @@ PixelOutput main(PixelInputType input)
     float ambientFactor = 0.3f;
     float diffuseFactor = 0.7f;
     result.color.rgb = ambientFactor * ambientColor + diffuse * diffuseFactor;
+    result.color.rgb *= saturate(aTexture.Sample(aSampler, input.uv).r)* 0.5f + 0.5f;
     
     return result;
 }

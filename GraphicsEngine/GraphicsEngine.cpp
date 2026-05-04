@@ -186,7 +186,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	int initSize = 16;
 	std::vector<float> noise(initSize * initSize, 0.0f);
-	int octaves = 8;
+	int octaves = 4;
 	float noiseAmount = 1.0f;
 
 	for (int i = 0; i < octaves; ++i)
@@ -205,7 +205,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		texture.emplace_back(0xff);
 	}
 
-	success = myPyramidMesh.InitPlane(myDevice.Get(), "VertexShader.cso", "PixelShader.cso", 10.0f, 10.0f, 1024, 1024, noise, initSize * (1 << octaves));
+	success = myPyramidMesh.InitPlane(myDevice.Get(), "VertexShader.cso", "PixelShader.cso", 32.0f, 32.0f, 128, 128, noise, initSize * (1 << octaves));
 
 	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
 		{
@@ -238,75 +238,6 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			1, 5, 7,
 			7, 3, 1
 		});
-	
-	if (!success)
-	{
-		return false;
-	}
-	
-	//{
-	//	Obj::Obj obj = Obj::LoadFromFile("Hand.model");
-	//
-	//	std::vector<Mesh::Vertex> vertices;
-	//	std::vector<Mesh::Index> indices;
-	//
-	//	vertices.reserve(obj.vertices.size());
-	//	vertices.resize(obj.vertices.size());
-	//
-	//	for (const auto& face : obj.faces)
-	//	{
-	//		vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
-	//		vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
-	//		vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
-	//		vertices.at(face.vertex).position.w = 1.0f;
-	//
-	//		vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
-	//		vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
-	//		vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
-	//
-	//		indices.push_back(face.vertex);
-	//	}
-	//
-	//	success = myHandMesh.Init(myDevice.Get(), "VertexShader.cso", "CrazyPixelShader.cso", vertices, indices);
-	//
-	//	if (!success)
-	//	{
-	//		return false;
-	//	}
-	//}
-	
-	//{
-	//	{
-	//		Obj::Obj obj = Obj::LoadFromFile("Dragon.model");
-	//
-	//		std::vector<Mesh::Vertex> vertices;
-	//		std::vector<Mesh::Index> indices;
-	//
-	//		vertices.reserve(obj.vertices.size());
-	//		vertices.resize(obj.vertices.size());
-	//
-	//		for (const auto& face : obj.faces)
-	//		{
-	//			vertices.at(face.vertex).position.x = obj.vertices.at(face.vertex).x;
-	//			vertices.at(face.vertex).position.y = obj.vertices.at(face.vertex).y;
-	//			vertices.at(face.vertex).position.z = obj.vertices.at(face.vertex).z;
-	//			vertices.at(face.vertex).position.w = 1.0f;
-	//
-	//			vertices.at(face.vertex).normal.x = obj.normals.at(face.normal).x;
-	//			vertices.at(face.vertex).normal.y = obj.normals.at(face.normal).y;
-	//			vertices.at(face.vertex).normal.z = obj.normals.at(face.normal).z;
-	//
-	//			indices.push_back(face.vertex);
-	//		}
-	//
-	//		success = myDragonMesh.Init(myDevice.Get(), "VertexShader.cso", "InsanePixelShader.cso", vertices, indices);
-	//
-	//		if (!success)
-	//		{
-	//			return false;
-	//		}
-	//	}
-	//}
 	
 	if (!success)
 	{
@@ -433,12 +364,10 @@ void GraphicsEngine::Render()
 
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
-	myPyramidMesh.Render(myContext.Get(), { 25.0f, 0.2f, 0.f }, Vector3<float>{ 10.0f, 10.0f, 10.0f });
-	//myHandMesh.Render(myContext.Get(), { 0.0f, -0.2f, 7.0f });
-	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
+	myPyramidMesh.Render(myContext.Get(), { 32.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
 
 	myContext->RSSetState(myRaymarchRasterizerState.Get());
-	myCubeMesh.Render(myContext.Get(), Vector3<float>{-8.f,4.f,0.f}, Vector3<float>{ 20.0f, 20.0f, 20.0f });
+	myCubeMesh.Render(myContext.Get(), Vector3<float>{ -8.0f, 4.0f, 0.0f }, Vector3<float>{ 24.0f, 24.0f, 24.0f });
 
 	mySwapChain->Present(1, 0);
 }

@@ -116,9 +116,9 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 		for (int i = 0; i < aResolutionHeight; ++i)
 		{
 			Vertex vertex;
-			vertex.position.x = (float)i * (aWidth / aResolutionWidth);
+			vertex.position.x = (float)i * (aWidth / aResolutionWidth) - aWidth * 0.5f;
 			vertex.position.y = 0.0f;
-			vertex.position.z = (float)j * (aHeight / aResolutionHeight);
+			vertex.position.z = (float)j * (aHeight / aResolutionHeight) - aHeight * 0.5f;
 			vertex.position.w = 1.0f;
 			vertex.color.x = 1.0f;
 			vertex.color.y = 1.0f;
