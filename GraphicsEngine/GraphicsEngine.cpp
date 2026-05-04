@@ -184,7 +184,28 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	//		0, 1, 2
 	//	});
 
-	success = myPyramidMesh.InitPlane(myDevice.Get(), "VertexShader.cso", "PixelShader.cso", 10.0f, 10.0f, 128, 128);
+	int initSize = 16;
+	std::vector<float> noise(initSize * initSize, 0.0f);
+	int octaves = 8;
+	float noiseAmount = 1.0f;
+
+	for (int i = 0; i < octaves; ++i)
+	{
+		AddNoise(noise, noiseAmount);
+		noise = Upsample2X(noise, initSize * (1 << i));
+		noiseAmount *= 0.25f;
+	}
+
+	std::vector<unsigned char> texture;
+	for (float f : noise)
+	{
+		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
+		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
+		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
+		texture.emplace_back(0xff);
+	}
+
+	success = myPyramidMesh.InitPlane(myDevice.Get(), "VertexShader.cso", "PixelShader.cso", 10.0f, 10.0f, 1024, 1024, noise, initSize * (1 << octaves));
 
 	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
 		{
@@ -320,27 +341,6 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
-	int initSize = 16;
-	std::vector<float> noise(initSize * initSize, 0.0f);
-	int octaves = 4;
-	float noiseAmount = 1.0f;
-
-	for (int i = 0; i < octaves; ++i)
-	{
-		AddNoise(noise, noiseAmount);
-		noise = Upsample2X(noise, initSize * (1 << i));
-		noiseAmount *= 0.25f;
-	}
-
-	std::vector<unsigned char> texture;
-	for (float f : noise)
-	{
-		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
-		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
-		texture.emplace_back((float)Clamp01(f * 0.5f + 0.5f) * 255.0f);
-		texture.emplace_back(0xff);
-	}
-
 	success = myNoiseTexture.Initialize(myDevice.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves));
 
 	if (!success)
@@ -438,7 +438,7 @@ void GraphicsEngine::Render()
 	//myDragonMesh.Render(myContext.Get(), { 0.0f, 0.0f, 5.5f });
 
 	myContext->RSSetState(myRaymarchRasterizerState.Get());
-	myCubeMesh.Render(myContext.Get(), myCamera.GetPosition(), Vector3<float>{ 1.0f, 1.0f, 1.0f });
+	myCubeMesh.Render(myContext.Get(), Vector3<float>{-8.f,4.f,0.f}, Vector3<float>{ 20.0f, 20.0f, 20.0f });
 
 	mySwapChain->Present(1, 0);
 }

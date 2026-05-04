@@ -133,13 +133,13 @@ float3 RaymarchVolume(float3 rayOrigin, float3 rayDirection, float maxRayDistanc
         if (distanceToSurface < MIN_SURFACE_DISTANCE)
         {
             float previousTransmittance = transmittance;
-            transmittance *= BeerLambert(0.005f, VOLUME_MARCH_DISTANCE);
+            transmittance *= BeerLambert(0.05f, VOLUME_MARCH_DISTANCE);
             
             float absorption = previousTransmittance - transmittance;
             
             float distanceToLight = length(LIGHT_POSITION - rayPoint);
-            float light = LightIntensity(60.0f, distanceToLight);
-            float shadow = RaymarchShadow(rayPoint, normalize(LIGHT_POSITION - rayPoint), distanceToLight, 12.0f);
+            float light = LightIntensity(10.0f, distanceToLight);
+            float shadow = RaymarchShadow(rayPoint, normalize(LIGHT_POSITION - rayPoint), distanceToLight, 24.0f);
             accumulatedColor += absorption * light * shadow;
         }
     }
@@ -155,7 +155,7 @@ float Light(float3 p, float3 normal)
     float light = saturate(dot(normal, LIGHT_POSITION - p));
     
     float distanceToLight = length(LIGHT_POSITION - p);
-    float shadow = RaymarchShadow(p, normalize(LIGHT_POSITION - p), distanceToLight, 12.0f);
+    float shadow = RaymarchShadow(p, normalize(LIGHT_POSITION - p), distanceToLight, 24.0f);
     
     return light * shadow * LightIntensity(lightIntensity, length(LIGHT_POSITION - p)) + ambientColor;
 }

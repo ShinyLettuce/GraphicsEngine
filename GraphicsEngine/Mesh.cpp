@@ -107,7 +107,7 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 	return true;
 }
 
-bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, float aWidth, float aHeight, int aResolutionWidth, int aResolutionHeight)
+bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, float aWidth, float aHeight, int aResolutionWidth, int aResolutionHeight, const std::vector<float>& aTexture, int aTextureWidth)
 {
 	std::vector<Vertex> vertices;
 
@@ -120,9 +120,6 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			vertex.position.y = 0.0f;
 			vertex.position.z = (float)j * (aHeight / aResolutionHeight);
 			vertex.position.w = 1.0f;
-			vertex.normal.x = 0.0f;
-			vertex.normal.y = 1.0f;
-			vertex.normal.z = 0.0f;
 			vertex.color.x = 1.0f;
 			vertex.color.y = 1.0f;
 			vertex.color.z = 1.0f;
@@ -130,7 +127,38 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			vertex.uv.u = (float)(j / (float)aResolutionWidth);
 			vertex.uv.v = (float)(i / (float)aResolutionWidth);
 
+			int index = static_cast<int>(std::floor(vertex.uv.u * aTextureWidth + vertex.uv.v * aTextureWidth * aTextureWidth));
+
+			float normalizedHeight = aTexture[index];
+			vertex.position.y = normalizedHeight;
+
 			vertices.emplace_back(std::move(vertex));
+		}
+	}
+
+	for (int j = 0; j < aResolutionWidth - 1; ++j)
+	{
+		for (int i = 0; i < aResolutionHeight - 1; ++i)
+		{
+			int indices[3]
+			{
+				i + j * aResolutionWidth,
+				(i + 1) + j * aResolutionWidth,
+				i + (j + 1) * aResolutionWidth
+			};
+			
+			Vector3<float> positions[3]
+			{
+				{ vertices[indices[0]].position.x, vertices[indices[0]].position.y, vertices[indices[0]].position.z },
+				{ vertices[indices[1]].position.x, vertices[indices[1]].position.y, vertices[indices[1]].position.z },
+				{ vertices[indices[2]].position.x, vertices[indices[2]].position.y, vertices[indices[2]].position.z },
+			};
+
+			Vector3<float> normal = (positions[0] - positions[1]).Cross((positions[0] - positions[2])).GetNormalized();
+
+			vertices[indices[0]].normal.x = normal.x;
+			vertices[indices[0]].normal.y = normal.y;
+			vertices[indices[0]].normal.z = normal.z;
 		}
 	}
 
