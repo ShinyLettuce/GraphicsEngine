@@ -21,22 +21,12 @@ class Mesh
 public:
 	struct alignas(16) Vertex
 	{
-		struct
-		{
-			float x, y, z, w;
-		} position;
-		struct
-		{
-			float x, y, z;
-		} normal;
-		struct
-		{
-			float u, v;
-		} uv;
-		struct
-		{
-			float x, y, z, w;
-		} color;
+		Vector4<float> position;
+		Vector3<float> objectSpaceNormal;
+		Vector3<float> tangent;
+		Vector3<float> bitangent;
+		Vector2<float> uv;
+		Vector4<float> color;
 	};
 
 	using Index = unsigned int;

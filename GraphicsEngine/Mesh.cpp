@@ -87,12 +87,14 @@ bool Mesh::Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char
 	}
 
 	{
-		const int numElements = 4;
+		const int numElements = 6;
 
 		D3D11_INPUT_ELEMENT_DESC layout[numElements]
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
@@ -124,10 +126,10 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			vertex.color.y = 1.0f;
 			vertex.color.z = 1.0f;
 			vertex.color.w = 1.0f;
-			vertex.uv.u = (float)(j / (float)aResolutionWidth);
-			vertex.uv.v = (float)(i / (float)aResolutionWidth);
+			vertex.uv.x = (float)(j / (float)aResolutionWidth);
+			vertex.uv.y = (float)(i / (float)aResolutionWidth);
 
-			int index = static_cast<int>(std::floor(vertex.uv.u * aTextureWidth + vertex.uv.v * aTextureWidth * aTextureWidth));
+			int index = static_cast<int>(std::floor(vertex.uv.x * aTextureWidth + vertex.uv.y * aTextureWidth * aTextureWidth));
 
 			float normalizedHeight = aTexture[index];
 			vertex.position.y = normalizedHeight;
@@ -155,10 +157,12 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			};
 
 			Vector3<float> normal = (positions[0] - positions[1]).Cross((positions[0] - positions[2])).GetNormalized();
+			Vector3<float> tangent = (Vector3<float>{0.f, 0.f, 1.f}.Cross(normal)).GetNormalized();
+			Vector3<float> bitangent = (normal.Cross(tangent)).GetNormalized();
 
-			vertices[indices[0]].normal.x = normal.x;
-			vertices[indices[0]].normal.y = normal.y;
-			vertices[indices[0]].normal.z = normal.z;
+			vertices[indices[0]].objectSpaceNormal = normal;
+			vertices[indices[0]].tangent = tangent;
+			vertices[indices[0]].bitangent = bitangent;
 		}
 	}
 
