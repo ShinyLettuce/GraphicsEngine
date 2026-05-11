@@ -15,7 +15,12 @@ cbuffer frameBuffer : register(b1)
 }
 
 Texture2D aTexture : register(t0);
-Texture2D aCodeTexture : register(t1);
+Texture2D aGrassTexture : register(t1);
+Texture2D aGrassNormalTexture : register(t2);
+Texture2D aRockTexture : register(t3);
+Texture2D aRockNormalTexture : register(t4);
+Texture2D aSnowTexture : register(t5);
+Texture2D aSnowNormalTexture : register(t6);
 
 SamplerState aSampler : register(s0);
 

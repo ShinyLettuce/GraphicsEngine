@@ -42,7 +42,13 @@ private:
 	Mesh myPlaneMesh;
 	Mesh myCubeMesh;
 
-	Texture myLoadedTexture;
+	Texture myGrassTexture;
+	Texture myGrassNormalTexture;
+	Texture myRockTexture;
+	Texture myRockNormalTexture;
+	Texture mySnowTexture;
+	Texture mySnowNormalTexture;
+
 	Texture myNoiseTexture;
 	Texture myNormalTexture;
 

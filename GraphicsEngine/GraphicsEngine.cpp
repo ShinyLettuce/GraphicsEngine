@@ -253,25 +253,6 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	{
 		return false;
 	}
-	
-	// Init loaded texture
-	{
-		int width;
-		int height;
-		int channels;
-		unsigned char* image = stbi_load("clouds.png", &width, &height, &channels, 4);
-		if (image == nullptr)
-		{
-			return false;
-		}
-
-		success = myLoadedTexture.Initialize(myDevice.Get(), image, width, height);
-		stbi_image_free(image);
-		if (!success)
-		{
-			return false;
-		}
-	}
 
 	success = myNoiseTexture.Initialize(myDevice.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves));
 	if (!success)
@@ -284,13 +265,127 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		int width;
 		int height;
 		int channels;
-		unsigned char* image = stbi_load("testnormal.png", &width, &height, &channels, 4);
+		unsigned char* image = stbi_load("Textures/testnormal.png", &width, &height, &channels, 4);
 		if (image == nullptr)
 		{
 			return false;
 		}
 
 		success = myNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		stbi_image_free(image);
+		if (!success)
+		{
+			return false;
+		}
+	}
+
+	// Init loaded texture
+	{
+		int width;
+		int height;
+		int channels;
+		unsigned char* image = stbi_load("Textures/Grass_c.png", &width, &height, &channels, 4);
+		if (image == nullptr)
+		{
+			return false;
+		}
+
+		success = myGrassTexture.Initialize(myDevice.Get(), image, width, height, false);
+		stbi_image_free(image);
+		if (!success)
+		{
+			return false;
+		}
+	}
+
+	// Init loaded texture
+	{
+		int width;
+		int height;
+		int channels;
+		unsigned char* image = stbi_load("Textures/Grass_n.png", &width, &height, &channels, 4);
+		if (image == nullptr)
+		{
+			return false;
+		}
+
+		success = myGrassNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		stbi_image_free(image);
+		if (!success)
+		{
+			return false;
+		}
+	}
+
+	// Init loaded texture
+	{
+		int width;
+		int height;
+		int channels;
+		unsigned char* image = stbi_load("Textures/Rock_c.png", &width, &height, &channels, 4);
+		if (image == nullptr)
+		{
+			return false;
+		}
+
+		success = myRockTexture.Initialize(myDevice.Get(), image, width, height, false);
+		stbi_image_free(image);
+		if (!success)
+		{
+			return false;
+		}
+	}
+
+	// Init loaded texture
+	{
+		int width;
+		int height;
+		int channels;
+		unsigned char* image = stbi_load("Textures/Rock_n.png", &width, &height, &channels, 4);
+		if (image == nullptr)
+		{
+			return false;
+		}
+
+		success = myRockNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		stbi_image_free(image);
+		if (!success)
+		{
+			return false;
+		}
+	}
+
+	// Init loaded texture
+	{
+		int width;
+		int height;
+		int channels;
+		unsigned char* image = stbi_load("Textures/Snow_c.png", &width, &height, &channels, 4);
+		if (image == nullptr)
+		{
+			return false;
+		}
+
+		success = mySnowTexture.Initialize(myDevice.Get(), image, width, height, false);
+		stbi_image_free(image);
+		if (!success)
+		{
+			return false;
+		}
+	}
+
+	// Init loaded texture
+	{
+		int width;
+		int height;
+		int channels;
+		unsigned char* image = stbi_load("Textures/Snow_n.png", &width, &height, &channels, 4);
+		if (image == nullptr)
+		{
+			return false;
+		}
+
+		success = mySnowNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -378,9 +473,14 @@ void GraphicsEngine::Render()
 
 	myCamera.Bind(myContext.Get());
 
-	myNormalTexture.Bind(myContext.Get(), 0);
-	myNoiseTexture.Bind(myContext.Get(), 1);
+	myNoiseTexture.Bind(myContext.Get(), 0);
 
+	myGrassTexture.Bind(myContext.Get(), 1);
+	myGrassNormalTexture.Bind(myContext.Get(), 2);
+	myRockTexture.Bind(myContext.Get(), 3);
+	myRockNormalTexture.Bind(myContext.Get(), 4);
+	mySnowTexture.Bind(myContext.Get(), 5);
+	mySnowNormalTexture.Bind(myContext.Get(), 6);
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
 	myPlaneMesh.Render(myContext.Get(), { 32.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
