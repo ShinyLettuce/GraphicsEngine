@@ -137,7 +137,7 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 
 				if (index < aTexture.size())
 				{
-					vertex.position.y = aTexture[index];
+					vertex.position.y = aTexture[index] * 2.5f;
 				}
 			}
 

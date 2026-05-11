@@ -14,17 +14,39 @@ PixelOutput main(PixelInputType input)
     //result.color.rgb *= saturate(aTexture.Sample(aSampler, input.uv).r)* 0.5f + 0.5f;
    
     float3x3 TBN = float3x3(input.tangent, input.bitangent, input.normal);
+    TBN = transpose(TBN);
     
-    float3 normal = aGrassNormalTexture.Sample(aSampler, input.uv).rgb;
-    normal.z = sqrt(1.0f - normal.x * normal.x - normal.y * normal.y);
-    normal = normal * 2.0 - 1.0;
+    float3 grassNormal = aGrassNormalTexture.Sample(aSampler, input.uv).rgb;
+    grassNormal.z = sqrt(1.0f - grassNormal.x * grassNormal.x - grassNormal.y * grassNormal.y);
+    grassNormal = grassNormal * 2.0 - 1.0;
+
+    
+    float3 rockNormal = aRockNormalTexture.Sample(aSampler, input.uv).rgb;
+    rockNormal.z = sqrt(1.0f - rockNormal.x * rockNormal.x - rockNormal.y * rockNormal.y);
+    rockNormal = rockNormal * 2.0 - 1.0;
+
+    
+    float3 snowNormal = aSnowNormalTexture.Sample(aSampler, input.uv).rgb;
+    snowNormal.z = sqrt(1.0f - snowNormal.x * snowNormal.x - snowNormal.y * snowNormal.y);
+    snowNormal = snowNormal * 2.0 - 1.0;
+
+    
+    float slopeBlend = smoothstep(0.7f, 1.0f, input.normal.y);
+    float heightBlend = smoothstep(-0.05f, 0.25f, input.worldPosition.y);
+    
+    float3 grassColor = aGrassTexture.Sample(aSampler, input.uv);
+    float3 rockColor = aRockTexture.Sample(aSampler, input.uv);
+    float3 snowColor = aSnowTexture.Sample(aSampler, input.uv);
+    
+    float3 color = lerp(rockColor, lerp(grassColor, snowColor, heightBlend), slopeBlend).rgb;
+    float3 normal = lerp(rockNormal, lerp(grassNormal, snowNormal, heightBlend), slopeBlend).rgb;
     normal = normalize(mul(TBN, normal));
-    
-    float3 color = aGrassTexture.Sample(aSampler, input.uv);
     
     float diffuse = saturate(dot(normal, normalize(float3(cos(time), 0.0f, sin(time)))));
     
-    result.color.rgb = color * diffuse;
+    float3 ambient = float3(0.01f, 0.01f, 0.01f);
+    
+    result.color.rgb = lerp(float3(0.01f, 0.02f, 0.03f), float3(1.f, 1.f, 0.9f), diffuse + ambient) * color;
     
     return result;
 }
