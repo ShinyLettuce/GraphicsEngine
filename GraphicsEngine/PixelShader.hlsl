@@ -46,7 +46,7 @@ PixelOutput main(PixelInputType input)
     
     float3 ambient = float3(0.1f, 0.1f, 0.1f);
     
-    result.color.rgb = lerp(float3(0.1f, 0.2f, 0.3f), float3(1.f, 1.f, 0.9f), diffuse + ambient) * color;
+    result.color.rgb = lerp(float3(0.1f, 0.2f, 0.4f), float3(1.f, 1.f, 0.6f), diffuse + ambient) * color;
     
     return result;
 }
