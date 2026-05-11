@@ -145,15 +145,21 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 		}
 	}
 
-	for (int j = 0; j < aResolutionWidth - 1; ++j)
+	for (int j = 0; j < aResolutionWidth; ++j)
 	{
-		for (int i = 0; i < aResolutionHeight - 1; ++i)
+		for (int i = 0; i < aResolutionHeight; ++i)
 		{
+			Vector2<int> offset
+			{
+				(j < aResolutionWidth - 1) ? 1 : -1,
+				(i < aResolutionHeight - 1) ? 1 : -1
+			};
+			
 			int indices[3]
 			{
 				i + j * aResolutionWidth,
-				(i + 1) + j * aResolutionWidth,
-				i + (j + 1) * aResolutionWidth
+				(i + offset.y) + j * aResolutionWidth,
+				i + (j + offset.x) * aResolutionWidth
 			};
 			
 			Vector3<float> positions[3]
@@ -163,7 +169,10 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 				{ vertices[indices[2]].position.x, vertices[indices[2]].position.y, vertices[indices[2]].position.z },
 			};
 
-			Vector3<float> normal = (positions[0] - positions[1]).Cross((positions[0] - positions[2])).GetNormalized();
+			// Flips the normal if the vertex offset causes the cross product to produce a flipped normal :)
+			float normalScalar = (float)(offset.x * offset.y);
+
+			Vector3<float> normal = normalScalar * (positions[0] - positions[1]).Cross((positions[0] - positions[2])).GetNormalized();
 			Vector3<float> tangent = (normal.Cross(Vector3<float>{ 0.0f, 0.0f, 1.0f })).GetNormalized();
 			Vector3<float> bitangent = (normal.Cross(tangent)).GetNormalized();
 
