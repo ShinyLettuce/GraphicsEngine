@@ -254,7 +254,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
-	success = myNoiseTexture.Initialize(myDevice.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves));
+	success = myNoiseTexture.Initialize(myDevice.Get(), myContext.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves));
 	if (!success)
 	{
 		return false;
@@ -271,7 +271,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = myNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		success = myNormalTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, false);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -290,7 +290,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = myGrassTexture.Initialize(myDevice.Get(), image, width, height, true);
+		success = myGrassTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, true);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -309,7 +309,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = myGrassNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		success = myGrassNormalTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, false);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -328,7 +328,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = myRockTexture.Initialize(myDevice.Get(), image, width, height, true);
+		success = myRockTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, true);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -347,7 +347,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = myRockNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		success = myRockNormalTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, false);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -366,7 +366,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = mySnowTexture.Initialize(myDevice.Get(), image, width, height, true);
+		success = mySnowTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, true);
 		stbi_image_free(image);
 		if (!success)
 		{
@@ -385,7 +385,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			return false;
 		}
 
-		success = mySnowNormalTexture.Initialize(myDevice.Get(), image, width, height, false);
+		success = mySnowNormalTexture.Initialize(myDevice.Get(), myContext.Get(), image, width, height, false);
 		stbi_image_free(image);
 		if (!success)
 		{
