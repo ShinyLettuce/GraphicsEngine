@@ -2,34 +2,37 @@
 
 #include <d3d11.h>
 
-bool Texture::Initialize(ID3D11Device* device, unsigned char* rgbaPixels, int width, int height)
+bool Texture::Initialize(ID3D11Device* aDevice, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB)
 {
-	ID3D11Texture2D* texture = nullptr;
+	ComPtr<ID3D11Texture2D> texture = nullptr;
 	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = width;
-	desc.Height = height;
+	desc.Width = aWidth;
+	desc.Height = aHeight;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	desc.Format = aUseSRGB ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA subresourceDesc = {};
-	subresourceDesc.pSysMem = (void*)rgbaPixels;
-	subresourceDesc.SysMemPitch = width * 4;
-	subresourceDesc.SysMemSlicePitch = width * height * 4;
-	if (FAILED(device->CreateTexture2D(&desc, &subresourceDesc, &texture)))
-		return false;
-	HRESULT hr = device->CreateShaderResourceView(texture, NULL, &myShaderResourceView);
-	if (FAILED(hr))
+	subresourceDesc.pSysMem = (void*)aRGBAPixels;
+	subresourceDesc.SysMemPitch = aWidth * 4;
+	subresourceDesc.SysMemSlicePitch = aWidth * aHeight * 4;
+	if (FAILED(aDevice->CreateTexture2D(&desc, &subresourceDesc, &texture)))
 	{
 		return false;
 	}
-	texture->Release();
+
+	HRESULT result = aDevice->CreateShaderResourceView(texture.Get(), NULL, &myShaderResourceView);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	return true;
 }
 

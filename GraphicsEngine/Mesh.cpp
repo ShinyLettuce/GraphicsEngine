@@ -113,9 +113,9 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 {
 	std::vector<Vertex> vertices;
 
-	for (int j = 0; j < aResolutionWidth; ++j)
+	for (unsigned int j = 0; j < aResolutionWidth; ++j)
 	{
-		for (int i = 0; i < aResolutionHeight; ++i)
+		for (unsigned int i = 0; i < aResolutionHeight; ++i)
 		{
 			Vertex vertex;
 			vertex.position.x = (float)i * (aWidth / aResolutionWidth) - aWidth * 0.5f;
@@ -129,10 +129,17 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			vertex.uv.x = (float)(j / (float)aResolutionWidth);
 			vertex.uv.y = (float)(i / (float)aResolutionWidth);
 
-			int index = static_cast<int>(std::floor(vertex.uv.x * aTextureWidth + vertex.uv.y * aTextureWidth * aTextureWidth));
+			// Sample texture
+			{
+				unsigned int x = (int)(vertex.uv.x * (float)aTextureWidth);
+				unsigned int y = (int)(vertex.uv.y * (float)aTextureWidth);
+				unsigned int index = x + y * aTextureWidth;
 
-			float normalizedHeight = aTexture[index];
-			vertex.position.y = normalizedHeight;
+				if (index < aTexture.size())
+				{
+					vertex.position.y = aTexture[index];
+				}
+			}
 
 			vertices.emplace_back(std::move(vertex));
 		}
@@ -157,7 +164,7 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			};
 
 			Vector3<float> normal = (positions[0] - positions[1]).Cross((positions[0] - positions[2])).GetNormalized();
-			Vector3<float> tangent = (Vector3<float>{0.f, 0.f, 1.f}.Cross(normal)).GetNormalized();
+			Vector3<float> tangent = (normal.Cross(Vector3<float>{ 0.0f, 0.0f, 1.0f })).GetNormalized();
 			Vector3<float> bitangent = (normal.Cross(tangent)).GetNormalized();
 
 			vertices[indices[0]].objectSpaceNormal = normal;

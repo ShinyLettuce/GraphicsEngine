@@ -23,6 +23,8 @@ struct VertexInputType
 {
     float4 position : POSITION;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
     float2 uv : TEXCOORD;
     float4 color : COLOR;
 };
@@ -30,10 +32,12 @@ struct VertexInputType
 struct PixelInputType
 {
     float4 screenPosition : SV_POSITION;
+    float4 worldPosition : POSITION;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
     float2 uv : TEXCOORD;
     float4 color : COLOR;
-    float4 worldPosition : POSITION;
 };
 
 struct PixelOutput

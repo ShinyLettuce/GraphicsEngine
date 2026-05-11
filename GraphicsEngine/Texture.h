@@ -10,7 +10,7 @@ using Microsoft::WRL::ComPtr;
 class Texture
 {
 public:
-	bool Initialize(ID3D11Device* device, unsigned char* rgbaPixels, int width, int height);
+	bool Initialize(ID3D11Device* aDevice, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB = true);
 
 	void Bind(ID3D11DeviceContext* context, int slot);
 private:

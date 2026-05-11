@@ -39,13 +39,12 @@ private:
 	ComPtr<ID3D11RasterizerState> myRaymarchRasterizerState;
 
 	Camera myCamera;
-	Mesh myPyramidMesh;
+	Mesh myPlaneMesh;
 	Mesh myCubeMesh;
-	Mesh myHandMesh;
-	Mesh myDragonMesh;
 
 	Texture myLoadedTexture;
 	Texture myNoiseTexture;
+	Texture myNormalTexture;
 
 	float myTime{ 0.0f };
 };

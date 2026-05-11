@@ -12,6 +12,14 @@ PixelOutput main(PixelInputType input)
     float diffuseFactor = 1.0f;
     result.color.rgb = ambientFactor * ambientColor + diffuse * diffuseFactor;
     result.color.rgb *= saturate(aTexture.Sample(aSampler, input.uv).r)* 0.5f + 0.5f;
+   
+    float3x3 TBN = float3x3(input.tangent, input.bitangent, input.normal);
+    
+    float3 normal = aTexture.Sample(aSampler, input.uv).rgb;
+    normal = normal * 2.0 - 1.0;
+    normal = normalize(mul(TBN, normal));
+    
+    result.color.rgb = saturate(dot(normal, normalize(float3(cos(time), -1.0f, sin(time)))));
     
     return result;
 }
