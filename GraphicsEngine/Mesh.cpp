@@ -172,9 +172,9 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			// Flips the normal if the vertex offset causes the cross product to produce a flipped normal :)
 			float normalScalar = (float)(offset.x * offset.y);
 
-			Vector3<float> normal = normalScalar * (positions[0] - positions[1]).Cross((positions[0] - positions[2])).GetNormalized();
+			Vector3<float> normal = normalScalar * (positions[0] - positions[2]).Cross((positions[0] - positions[1])).GetNormalized();
 			Vector3<float> tangent = (normal.Cross(Vector3<float>{ 0.0f, 0.0f, 1.0f })).GetNormalized();
-			Vector3<float> bitangent = (normal.Cross(tangent)).GetNormalized();
+			Vector3<float> bitangent = (tangent.Cross(normal)).GetNormalized();
 
 			vertices[indices[0]].objectSpaceNormal = normal;
 			vertices[indices[0]].tangent = tangent;
