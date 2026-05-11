@@ -17,17 +17,17 @@ PixelOutput main(PixelInputType input)
     TBN = transpose(TBN);
     
     float3 grassNormal = aGrassNormalTexture.Sample(aSampler, input.uv).rgb;
-    grassNormal.z = sqrt(1.0f - grassNormal.x * grassNormal.x - grassNormal.y * grassNormal.y);
+    grassNormal.z = sqrt(1.0f - (grassNormal.x * grassNormal.x - grassNormal.y * grassNormal.y));
     grassNormal = grassNormal * 2.0 - 1.0;
 
     
     float3 rockNormal = aRockNormalTexture.Sample(aSampler, input.uv).rgb;
-    rockNormal.z = sqrt(1.0f - rockNormal.x * rockNormal.x - rockNormal.y * rockNormal.y);
+    rockNormal.z = sqrt(1.0f - (rockNormal.x * rockNormal.x - rockNormal.y * rockNormal.y));
     rockNormal = rockNormal * 2.0 - 1.0;
 
     
     float3 snowNormal = aSnowNormalTexture.Sample(aSampler, input.uv).rgb;
-    snowNormal.z = sqrt(1.0f - snowNormal.x * snowNormal.x - snowNormal.y * snowNormal.y);
+    snowNormal.z = sqrt(1.0f - (snowNormal.x * snowNormal.x - snowNormal.y * snowNormal.y));
     snowNormal = snowNormal * 2.0 - 1.0;
 
     
@@ -39,14 +39,14 @@ PixelOutput main(PixelInputType input)
     float3 snowColor = aSnowTexture.Sample(aSampler, input.uv);
     
     float3 color = lerp(rockColor, lerp(grassColor, snowColor, heightBlend), slopeBlend).rgb;
-    float3 normal = lerp(rockNormal, lerp(grassNormal, snowNormal, heightBlend), slopeBlend).rgb;
+    float3 normal = lerp(rockNormal, lerp(grassNormal, snowNormal, heightBlend), slopeBlend);
     normal = normalize(mul(TBN, normal));
     
     float diffuse = saturate(dot(normal, normalize(float3(cos(time), 0.0f, sin(time)))));
     
-    float3 ambient = float3(0.01f, 0.01f, 0.01f);
+    float3 ambient = float3(0.1f, 0.1f, 0.1f);
     
-    result.color.rgb = lerp(float3(0.01f, 0.02f, 0.03f), float3(1.f, 1.f, 0.9f), diffuse + ambient) * color;
+    result.color.rgb = lerp(float3(0.1f, 0.2f, 0.3f), float3(1.f, 1.f, 0.9f), diffuse + ambient) * color;
     
     return result;
 }
