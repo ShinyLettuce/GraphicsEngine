@@ -108,8 +108,11 @@
     <FxCompile Include="CrazyPixelShader.hlsl" />
     <FxCompile Include="InsanePixelShader.hlsl" />
     <FxCompile Include="RaymarchWater.hlsl" />
+    <FxCompile Include="ExternalShaders\PbrModelShaderPS.hlsl" />
+    <FxCompile Include="ExternalShaders\PbrModelShaderVs.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
+    <None Include="ExternalShaders\PBRFunctions.hlsli" />
   </ItemGroup>
 </Project>
