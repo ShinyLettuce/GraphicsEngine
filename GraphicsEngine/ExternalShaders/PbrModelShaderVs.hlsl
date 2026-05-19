@@ -12,7 +12,7 @@ PixelInputType main(VertexInputType input)
     float4 vertexWorldPos = mul(modelToWorldMatrix, vertexObjectPos);
     float4 vertexProjectionPos = mul(worldToClipMatrix, vertexWorldPos);
 	
-    float3x3 toWorldRotation = (float3x3) modelToWorldMatrix;
+    float3x3 toWorldRotation = (float3x3)modelToWorldMatrix;
 	float3 vertexWorldNormal = mul(toWorldRotation, input.normal);
 	float3 vertexWorldBinormal = mul(toWorldRotation, input.bitangent);
 	float3 vertexWorldTangent = mul(toWorldRotation, input.tangent);
