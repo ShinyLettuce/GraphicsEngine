@@ -9,6 +9,7 @@ namespace Buffer
 	{
 		Matrix4x4<float> worldToClipMatrix;
 		Vector3<float> eyePosition;
+		Vector3<float> eyeForward;
 	};
 
 	struct alignas(16) PerFrameBuffer

@@ -54,6 +54,7 @@ void Camera::Bind(ID3D11DeviceContext* aDeviceContext)
 	Buffer::PerCameraBuffer perCameraBuffer;
 	perCameraBuffer.worldToClipMatrix = transform.GetFastInverse() * myProjectionMatrix;
 	perCameraBuffer.eyePosition = myPosition;
+	perCameraBuffer.eyeForward = Vector3<float>(transform(3, 1), transform(3, 2), transform(3, 3));
 
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 	aDeviceContext->Map(myPerCameraBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);

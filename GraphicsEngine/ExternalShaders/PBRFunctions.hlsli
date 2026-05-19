@@ -248,6 +248,7 @@ float3 EvaluateSpotLight(float3 albedoColor, float3 specularColor, float3 normal
 
 #else
 
+#if 0
 // Based on Practical Realtime Strategies for Accurated Indirect Occlusion, GTAO 
 // https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
 float3 GTAOMultiBounce(float v, float3 albedo)
@@ -668,3 +669,101 @@ float3 EvaluateSpotLight(float3 albedoColor, float3 specularColor, float3 normal
 #endif
 
 #endif
+
+#endif
+
+float2 BrdfSpecularColorScaleOffset(float roughness, float NoV)
+{
+    const float4 c0 = { -1, -0.0275, -0.572, 0.022 };
+    const half4 c1 = { 1, 0.0425, 1.04, -0.04 };
+    float4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+    float2 AB = float2(-1.04, 1.04) * a004 + r.zw;
+    return AB;
+}
+
+float2 CalculateSpecularAndDiffuseEnergyConservation(float roughness, float NdV, float3 specularColor)
+{
+    // Multiscattering approximation. 
+    // Method used in multiple places, for example: 
+    // "The Road toward Unified Rendering with Unity’s High Definition Render Pipeline": https://advances.realtimerendering.com/s2018/Siggraph%202018%20HDRP%20talk_with%20notes.pdf
+    float2 ab = BrdfSpecularColorScaleOffset(roughness, NdV);
+    float specScale = 1.f + specularColor * max(0.f, 1.f / (ab.x + ab.y) - 1.f);
+    
+    // Remove amount of light handled by specular
+    // Based on: https://c0de517e.blogspot.com/2019/08/misunderstanding-multilayering-diffuse.html
+    float diffScale = max(0.f, 1.f - (ab.x * specularColor + ab.y) * specScale);
+    
+    return float2(specScale, diffScale);
+}
+
+float3 Diffuse(float3 pAlbedo)
+{
+    return pAlbedo / PI;
+}
+
+float NormalDistribution_GGX(float a, float NdH)
+{
+    // Isotropic ggx
+    float a2 = a * a;
+    float NdH2 = NdH * NdH;
+
+    float denominator = NdH2 * (a2 - 1.0f) + 1.0f;
+    denominator *= denominator;
+    denominator *= PI;
+
+    return a2 / denominator;
+}
+
+float Geometric_Smith_Schlick_GGX(float a, float NdV, float NdL)
+{
+    // Smith Schlick-GGX
+    float k = a * 0.5f;
+    float GV = NdV / (NdV * (1 - k) + k);
+    float GL = NdL / (NdL * (1 - k) + k);
+
+    return GV * GL;
+}
+
+float3 Fresnel_Schlick(float3 specularColor, float3 h, float3 v)
+{
+    return (specularColor + (1.0f - specularColor) * pow((1.0f - saturate(dot(v, h))), 5));
+}
+
+float3 Specular(float3 specularColor, float3 h, float3 v, float a, float NdL, float NdV, float NdH)
+{
+    return ((NormalDistribution_GGX(a, NdH) * Geometric_Smith_Schlick_GGX(a, NdV, NdL)) * Fresnel_Schlick(specularColor, h, v)) / (4.0f * NdL * NdV + 0.0001f);
+}
+
+float3 EvaluateDirectionalLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float3 lightColor, float3 lightDir, float3 viewDir)
+{
+    // Compute som useful values
+    float NdL = saturate(dot(normal, lightDir));
+    float lambert = NdL; // Angle attenuation
+    
+    // negative NdV values are wrong, but occur due to normal mapping
+    // taking abs here is for example what is done here: https://seblagarde.wordpress.com/wp-content/uploads/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+    float NdV = abs(dot(normal, viewDir)) + 1e-5f;
+    float3 h = normalize(lightDir + viewDir);
+    float NdH = saturate(dot(normal, h));
+    float VdH = saturate(dot(viewDir, h));
+    float LdV = saturate(dot(lightDir, viewDir));
+    
+    float alpha = max(0.001f, roughness * roughness);
+    float3 cDiff = Diffuse(albedoColor);
+    float3 cSpec = Specular(specularColor, h, viewDir, alpha, NdL, NdV, NdH);
+    
+#ifdef ENABLE_ENERGY_CONSERVATION
+    float2 specDiffScale = CalculateSpecularAndDiffuseEnergyConservation(roughness, NdV, specularColor);
+    cSpec *= specDiffScale.x;
+    cDiff *= specDiffScale.y;
+#endif
+    
+    return lightColor * lambert * (cDiff + cSpec) * PI;
+}
+
+float3 EvaluateSoftDirectionalLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float softness, float3 lightColor, float3 lightDir, float3 viewDir)
+{
+    // not implemented in the old path
+    return EvaluateDirectionalLight(albedoColor, specularColor, normal, roughness, lightColor, lightDir, viewDir);
+}

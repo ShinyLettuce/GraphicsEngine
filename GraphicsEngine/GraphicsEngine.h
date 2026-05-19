@@ -44,10 +44,13 @@ private:
 
 	Texture myGrassTexture;
 	Texture myGrassNormalTexture;
+	Texture myGrassMaterialTexture;
 	Texture myRockTexture;
 	Texture myRockNormalTexture;
+	Texture myRockMaterialTexture;
 	Texture mySnowTexture;
 	Texture mySnowNormalTexture;
+	Texture mySnowMaterialTexture;
 
 	Texture myNoiseTexture;
 	Texture myNormalTexture;

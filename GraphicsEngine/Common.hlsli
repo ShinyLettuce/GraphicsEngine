@@ -2,6 +2,7 @@ cbuffer cameraBuffer : register(b0)
 {
     float4x4 worldToClipMatrix;
     float3 eyePosition;
+    float3 eyeForward;
 };
 
 cbuffer objectBuffer : register(b1)
@@ -15,12 +16,18 @@ cbuffer frameBuffer : register(b1)
 }
 
 Texture2D aTexture : register(t0);
+
 Texture2D aGrassTexture : register(t1);
 Texture2D aGrassNormalTexture : register(t2);
-Texture2D aRockTexture : register(t3);
-Texture2D aRockNormalTexture : register(t4);
-Texture2D aSnowTexture : register(t5);
-Texture2D aSnowNormalTexture : register(t6);
+Texture2D aGrassMaterialTexture : register(t3);
+
+Texture2D aRockTexture : register(t4);
+Texture2D aRockNormalTexture : register(t5);
+Texture2D aRockMaterialTexture : register(t6);
+
+Texture2D aSnowTexture : register(t7);
+Texture2D aSnowNormalTexture : register(t8);
+Texture2D aSnowMaterialTexture : register(t9);
 
 SamplerState aSampler : register(s0);
 

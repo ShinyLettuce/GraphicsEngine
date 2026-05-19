@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include "stb_image.h"
+
 #include <d3d11.h>
 
 bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB)
@@ -33,6 +35,23 @@ bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, u
 	aContext->GenerateMips(myShaderResourceView.Get());
 
 	return true;
+}
+
+bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, const char* aFilePath, bool aUseSRGB)
+{
+	int width;
+	int height;
+	int channels;
+	unsigned char* image = stbi_load(aFilePath, &width, &height, &channels, 4);
+	if (image == nullptr)
+	{
+		return false;
+	}
+
+	bool success = Initialize(aDevice, aContext, image, width, height, false);
+
+	stbi_image_free(image);
+	return success;
 }
 
 void Texture::Bind(ID3D11DeviceContext* context, int slot)
