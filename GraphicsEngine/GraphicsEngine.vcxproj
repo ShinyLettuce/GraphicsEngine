@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DDSTextureLoader11.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="BufferData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CoolerWindows.h" />
+    <ClInclude Include="DDSTextureLoader11.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="Matrix3x3.h" />
     <ClInclude Include="Matrix4x4.h" />

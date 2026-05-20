@@ -22,7 +22,7 @@ class GraphicsEngine
 public:
 	GraphicsEngine();
 	~GraphicsEngine();
-	bool Initialize(HWND windowHandle);
+	bool InitializePng(HWND windowHandle);
 	void Update(const InputHandler& aInput, float aDeltaTime);
 	void Render();
 private:

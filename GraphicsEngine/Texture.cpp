@@ -1,10 +1,11 @@
 #include "Texture.h"
 
 #include "stb_image.h"
+#include "DDSTextureLoader11.h"
 
 #include <d3d11.h>
 
-bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB)
+bool Texture::InitializePng(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB)
 {
 	ComPtr<ID3D11Texture2D> texture = nullptr;
 	D3D11_TEXTURE2D_DESC desc = {};
@@ -37,7 +38,7 @@ bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, u
 	return true;
 }
 
-bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, const char* aFilePath, bool aUseSRGB)
+bool Texture::InitializePng(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, const char* aFilePath, bool aUseSRGB)
 {
 	int width;
 	int height;
@@ -48,10 +49,16 @@ bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, c
 		return false;
 	}
 
-	bool success = Initialize(aDevice, aContext, image, width, height, false);
+	bool success = InitializePng(aDevice, aContext, image, width, height, false);
 
 	stbi_image_free(image);
 	return success;
+}
+
+bool Texture::InitializeDds(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, wchar_t aFilePath, bool aUseSRGB)
+{
+	ComPtr<ID3D11Texture2D> texture = nullptr;
+	DirectX::CreateDDSTextureFromFile(aDevice, aContext, aFilePath, texture, myShaderResourceView, nullptr);
 }
 
 void Texture::Bind(ID3D11DeviceContext* context, int slot)

@@ -33,7 +33,7 @@ float Clamp01(float aValue)
 	}
 }
 
-bool GraphicsEngine::Initialize(HWND windowHandle)
+bool GraphicsEngine::InitializePng(HWND windowHandle)
 {
 	HRESULT	result;
 
@@ -254,58 +254,58 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
-	if (!myNoiseTexture.Initialize(myDevice.Get(), myContext.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves)))
+	if (!myNoiseTexture.InitializePng(myDevice.Get(), myContext.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves)))
 	{
 		return false;
 	}
 
-	if (!myNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/testnormal.png", false))
+	if (!myNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/testnormal.png", false))
 	{
 		return false;
 	}
 
 
-	if (!myGrassTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_c.png", true))
+	if (!myGrassTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Grass_c.png", true))
 	{
 		return false;
 	}
 
-	if (!myGrassNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_n.png", false))
+	if (!myGrassNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Grass_n.png", false))
 	{
 		return false;
 	}
 
-	if (!myGrassMaterialTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_m.png", false))
+	if (!myGrassMaterialTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Grass_m.png", false))
 	{
 		return false;
 	}
 
-	if (!myRockTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Rock_c.png", true))
+	if (!myRockTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Rock_c.png", true))
 	{
 		return false;
 	}
 
-	if (!myRockNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Rock_n.png", false))
+	if (!myRockNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Rock_n.png", false))
 	{
 		return false;
 	}
 
-	if (!myRockMaterialTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Rock_m.png", false))
+	if (!myRockMaterialTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Rock_m.png", false))
 	{
 		return false;
 	}
 
-	if (!mySnowTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Snow_c.png", true))
+	if (!mySnowTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Snow_c.png", true))
 	{
 		return false;
 	}
 
-	if (!mySnowNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Snow_n.png", false))
+	if (!mySnowNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Snow_n.png", false))
 	{
 		return false;
 	}
 
-	if (!mySnowMaterialTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Snow_m.png", false))
+	if (!mySnowMaterialTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Snow_m.png", false))
 	{
 		return false;
 	}
