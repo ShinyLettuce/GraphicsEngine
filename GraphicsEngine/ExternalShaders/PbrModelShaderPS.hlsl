@@ -62,8 +62,7 @@ PixelOutput main(PixelInputType input)
     float3x3 TBN = float3x3(
 		normalize(input.tangent),
 		normalize(-input.bitangent),
-		normalize(input.normal)
-		);
+		normalize(input.normal));
 
 	// Can save an instruction here by instead doing
 	// normalize(mul(normal, TBN)); It works because
@@ -85,12 +84,8 @@ PixelOutput main(PixelInputType input)
     float ambientOcclusion = material.r;
     float metalness = material.b;
     float roughness = material.g;
-    
-    //ambientOcclusion = 0.0f;
-    //metalness = 1.0f;
-    //roughness = 0.0f;
 
-    float3 AmbientLightColor = 0.2f;
+    float3 AmbientLightColor = 0.5f;
     
     float3 specularColor = lerp(0.04f, albedo.rgb, metalness);
     float3 diffuseColor = lerp(0.00f, albedo.rgb, 1.0f - metalness);
