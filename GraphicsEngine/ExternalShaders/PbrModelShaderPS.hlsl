@@ -8,8 +8,16 @@ PixelOutput main(PixelInputType input)
     float2 scaledUV = input.uv;
 	
     float3 toEye = normalize(eyePosition - input.worldPosition.xyz);
-    float4 albedo = aRockTexture.Sample(aSampler, scaledUV);
-
+    
+    float slopeBlend = smoothstep(0.7f, 1.0f, input.normal.y);
+    float heightBlend = smoothstep(-0.05f, 0.25f, input.worldPosition.y);
+    
+    float4 grassAlbedo = aGrassTexture.Sample(aSampler, scaledUV);
+    float4 rockAlbedo = aRockTexture.Sample(aSampler, scaledUV);
+    float4 snowAlbedo = aSnowTexture.Sample(aSampler, scaledUV);
+    
+    float4 albedo = lerp(rockAlbedo, lerp(grassAlbedo, snowAlbedo, heightBlend), slopeBlend);
+    
     //if (albedo.a <= alphaTestThreshold)
     //{
     //    discard;
@@ -17,11 +25,25 @@ PixelOutput main(PixelInputType input)
     //    return result;
     //}
 
-    float3 normal = aRockNormalTexture.Sample(aSampler, scaledUV).xyy;
+    float3 grassNormal = aGrassNormalTexture.Sample(aSampler, scaledUV).xyy;
 
-    normal.xy = 2.0f * normal.xy - 1.0f;
-    normal.z = sqrt(1 - saturate(normal.x * normal.x + normal.y * normal.y));
-    normal = normalize(normal);
+    grassNormal.xy = 2.0f * grassNormal.xy - 1.0f;
+    grassNormal.z = sqrt(1 - saturate(grassNormal.x * grassNormal.x + grassNormal.y * grassNormal.y));
+    grassNormal = normalize(grassNormal);
+    
+    float3 rockNormal = aRockNormalTexture.Sample(aSampler, scaledUV).xyy;
+    
+    rockNormal.xy = 2.0f * rockNormal.xy - 1.0f;
+    rockNormal.z = sqrt(1 - saturate(rockNormal.x * rockNormal.x + rockNormal.y * rockNormal.y));
+    rockNormal = normalize(rockNormal);
+    
+    float3 snowNormal = aSnowNormalTexture.Sample(aSampler, scaledUV).xyy;
+    
+    snowNormal.xy = 2.0f * snowNormal.xy - 1.0f;
+    snowNormal.z = sqrt(1 - saturate(snowNormal.x * snowNormal.x + snowNormal.y * snowNormal.y));
+    snowNormal = normalize(snowNormal);
+    
+    float3 normal = lerp(rockNormal, lerp(grassNormal, snowNormal, heightBlend), slopeBlend).rgb;
 
     float3x3 TBN = float3x3(
 		normalize(input.tangent.xyz),
@@ -40,7 +62,11 @@ PixelOutput main(PixelInputType input)
 	// TGA Channel Pack. ORM.
 	// Metalness, Roughness, Emissive, Emissive Strength (opt).
 
-    float3 material = aRockMaterialTexture.Sample(aSampler, scaledUV).rgb;
+    float3 grassMaterial = aGrassMaterialTexture.Sample(aSampler, scaledUV).rgb;
+    float3 rockMaterial = aRockMaterialTexture.Sample(aSampler, scaledUV).rgb;
+    float3 snowMaterial = aSnowMaterialTexture.Sample(aSampler, scaledUV).rgb;
+    
+    float3 material = lerp(rockMaterial, lerp(grassMaterial, snowMaterial, heightBlend), slopeBlend).rgb;
 
     float ambientOcclusion = material.r;
     float metalness = material.b;
@@ -50,8 +76,8 @@ PixelOutput main(PixelInputType input)
 
     //float emissive = fx.r;
 	
-    float3 specularColor = 1.0f; //lerp((float3) 0.04f, albedo.rgb, metalness);
-    float3 diffuseColor = 0.0f; //lerp((float3) 0.00f, albedo.rgb, 1 - metalness);
+    float3 specularColor = lerp((float3) 0.04f, albedo.rgb, metalness);
+    float3 diffuseColor = lerp((float3) 0.00f, albedo.rgb, 1 - metalness);
 
     //float3 ambiance = AmbientLightColor.rgb * EvaluateAmbiance(
 	//	environmentTexture, pixelNormal, input.normal.xyz,
@@ -59,13 +85,13 @@ PixelOutput main(PixelInputType input)
 	//	ambientOcclusion, diffuseColor, specularColor
 	//);
     
-    float ambiance = 0.01f;
+    float ambiance = 0.3f;
 
     float3 directionalLight;
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = 1.0f;
-    float3 DirectionalLightTransform = normalize(float3(1.0f, -1.0f, 1.0f));
+    float3 DirectionalLightTransform = normalize(float3(cos(time), 1.0f, sin(time)));
     
     if (DirectionalLightSoftness == 0.f)
     {
@@ -84,7 +110,7 @@ PixelOutput main(PixelInputType input)
     float3 radiance = directionalLight + ambiance;
 
 
-    result.color.rgb = (float3) radiance;
+    result.color.rgb = radiance * albedo.rgb;
     result.color.a = albedo.a;
     return result;
 }
