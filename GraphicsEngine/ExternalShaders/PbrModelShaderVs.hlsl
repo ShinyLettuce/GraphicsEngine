@@ -10,14 +10,14 @@ PixelInputType main(VertexInputType input)
 	//float4 vertexProjectionPos = mul(CameraToProjection, vertexViewPos);
 
     float4 vertexWorldPos = mul(modelToWorldMatrix, vertexObjectPos);
-    float4 vertexProjectionPos = mul(worldToClipMatrix, vertexWorldPos);
+    float4 vertexViewPos = mul(worldToClipMatrix, vertexWorldPos);
 	
     float3x3 toWorldRotation = (float3x3)modelToWorldMatrix;
 	float3 vertexWorldNormal = mul(toWorldRotation, input.normal);
 	float3 vertexWorldBinormal = mul(toWorldRotation, input.bitangent);
 	float3 vertexWorldTangent = mul(toWorldRotation, input.tangent);
 	
-	result.screenPosition = vertexProjectionPos;
+    result.screenPosition = vertexViewPos;
 	result.worldPosition = vertexWorldPos;
 	//result.vertexColor0 = input.vertexColor0;
 	//result.vertexColor1 = input.vertexColor1;

@@ -672,6 +672,15 @@ float3 EvaluateSpotLight(float3 albedoColor, float3 specularColor, float3 normal
 
 #endif
 
+int GetNumMips(TextureCube cubeTex)
+{
+    int iWidth = 0;
+    int iheight = 0;
+    int numMips = 0;
+    cubeTex.GetDimensions(0, iWidth, iheight, numMips);
+    return numMips;
+}
+
 float bias(float value, float b)
 {
     return (b > 0.0) ? pow(abs(value), log(b) / log(0.5)) : 0.0f;
@@ -809,12 +818,7 @@ float3 Specular(float3 specularColor, float3 h, float3 v, float a, float NdL, fl
 
 float3 EvaluateAmbiance(TextureCube lysBurleyCube, SamplerState s, float3 vN, float3 VNUnit, float3 toEye, float perceptualRoughness, float ao, float3 dfcol, float3 spccol)
 {
-    uint width;
-    uint height;
-    uint numLevels;
-    lysBurleyCube.GetDimensions(0, width, height, numLevels);
-    
-    int numMips = numLevels;
+    int numMips = GetNumMips(lysBurleyCube);
     const int nrBrdMips = numMips - nMipOffset;
     float VdotN = saturate(dot(toEye, vN)); //clamp(dot(toEye, vN), 0.0, 1.0f);
     const float3 vRorg = 2 * vN * VdotN - toEye;
