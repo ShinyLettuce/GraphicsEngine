@@ -33,7 +33,7 @@ float Clamp01(float aValue)
 	}
 }
 
-bool GraphicsEngine::InitializePng(HWND windowHandle)
+bool GraphicsEngine::Initialize(HWND windowHandle)
 {
 	HRESULT	result;
 
@@ -254,58 +254,63 @@ bool GraphicsEngine::InitializePng(HWND windowHandle)
 		return false;
 	}
 
-	if (!myNoiseTexture.InitializePng(myDevice.Get(), myContext.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves)))
+	if (!myNoiseTexture.Initialize(myDevice.Get(), myContext.Get(), texture.data(), initSize * (1 << octaves), initSize * (1 << octaves)))
 	{
 		return false;
 	}
 
-	if (!myNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/testnormal.png", false))
+	if (!myNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/testnormal.png", false))
 	{
 		return false;
 	}
 
 
-	if (!myGrassTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Grass_c.png", true))
+	if (!myGrassTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_c.png", true))
 	{
 		return false;
 	}
 
-	if (!myGrassNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Grass_n.png", false))
+	if (!myGrassNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_n.png", false))
 	{
 		return false;
 	}
 
-	if (!myGrassMaterialTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Grass_m.png", false))
+	if (!myGrassMaterialTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_m.png", false))
 	{
 		return false;
 	}
 
-	if (!myRockTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Rock_c.png", true))
+	if (!myRockTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Rock_c.png", true))
 	{
 		return false;
 	}
 
-	if (!myRockNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Rock_n.png", false))
+	if (!myRockNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Rock_n.png", false))
 	{
 		return false;
 	}
 
-	if (!myRockMaterialTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Rock_m.png", false))
+	if (!myRockMaterialTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Rock_m.png", false))
 	{
 		return false;
 	}
 
-	if (!mySnowTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Snow_c.png", true))
+	if (!mySnowTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Snow_c.png", true))
 	{
 		return false;
 	}
 
-	if (!mySnowNormalTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Snow_n.png", false))
+	if (!mySnowNormalTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Snow_n.png", false))
 	{
 		return false;
 	}
 
-	if (!mySnowMaterialTexture.InitializePng(myDevice.Get(), myContext.Get(), "Textures/Snow_m.png", false))
+	if (!mySnowMaterialTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Snow_m.png", false))
+	{
+		return false;
+	}
+	
+	if (!myCubeMap.InitializeDds(myDevice.Get(), myContext.Get(), L"Textures/cube_1024_preblurred_angle3_Skansen3.dds", false))
 	{
 		return false;
 	}
@@ -403,6 +408,8 @@ void GraphicsEngine::Render()
 	mySnowTexture.Bind(myContext.Get(), 7);
 	mySnowNormalTexture.Bind(myContext.Get(), 8);
 	mySnowMaterialTexture.Bind(myContext.Get(), 9);
+
+	myCubeMap.Bind(myContext.Get(), 10);
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
 	myPlaneMesh.Render(myContext.Get(), { 32.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });

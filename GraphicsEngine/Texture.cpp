@@ -5,7 +5,7 @@
 
 #include <d3d11.h>
 
-bool Texture::InitializePng(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB)
+bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, unsigned char* aRGBAPixels, int aWidth, int aHeight, bool aUseSRGB)
 {
 	ComPtr<ID3D11Texture2D> texture = nullptr;
 	D3D11_TEXTURE2D_DESC desc = {};
@@ -38,7 +38,7 @@ bool Texture::InitializePng(ID3D11Device* aDevice, ID3D11DeviceContext* aContext
 	return true;
 }
 
-bool Texture::InitializePng(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, const char* aFilePath, bool aUseSRGB)
+bool Texture::Initialize(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, const char* aFilePath, bool aUseSRGB)
 {
 	int width;
 	int height;
@@ -49,16 +49,16 @@ bool Texture::InitializePng(ID3D11Device* aDevice, ID3D11DeviceContext* aContext
 		return false;
 	}
 
-	bool success = InitializePng(aDevice, aContext, image, width, height, false);
+	bool success = Initialize(aDevice, aContext, image, width, height, false);
 
 	stbi_image_free(image);
 	return success;
 }
 
-bool Texture::InitializeDds(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, wchar_t aFilePath, bool aUseSRGB)
+bool Texture::InitializeDds(ID3D11Device* aDevice, ID3D11DeviceContext* aContext, const wchar_t* aFilePath, bool aUseSRGB)
 {
-	ComPtr<ID3D11Texture2D> texture = nullptr;
-	DirectX::CreateDDSTextureFromFile(aDevice, aContext, aFilePath, texture, myShaderResourceView, nullptr);
+	HRESULT result = DirectX::CreateDDSTextureFromFile(aDevice, aContext, aFilePath, nullptr, &myShaderResourceView);
+	return SUCCEEDED(result);
 }
 
 void Texture::Bind(ID3D11DeviceContext* context, int slot)

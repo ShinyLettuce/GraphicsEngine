@@ -22,7 +22,7 @@ class GraphicsEngine
 public:
 	GraphicsEngine();
 	~GraphicsEngine();
-	bool InitializePng(HWND windowHandle);
+	bool Initialize(HWND windowHandle);
 	void Update(const InputHandler& aInput, float aDeltaTime);
 	void Render();
 private:
@@ -51,6 +51,8 @@ private:
 	Texture mySnowTexture;
 	Texture mySnowNormalTexture;
 	Texture mySnowMaterialTexture;
+
+	Texture myCubeMap;
 
 	Texture myNoiseTexture;
 	Texture myNormalTexture;

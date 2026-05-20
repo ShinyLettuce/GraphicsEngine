@@ -71,39 +71,39 @@ PixelOutput main(PixelInputType input)
     float ambientOcclusion = material.r;
     float metalness = material.b;
     float roughness = material.g;
-
-    //float3 fx = fxTexture.Sample(defaultSampler, scaledUV).rgb;
-
-    //float emissive = fx.r;
-	
-    float3 specularColor = lerp((float3) 0.04f, albedo.rgb, metalness);
-    float3 diffuseColor = lerp((float3) 0.00f, albedo.rgb, 1 - metalness);
-
-    //float3 ambiance = AmbientLightColor.rgb * EvaluateAmbiance(
-	//	environmentTexture, pixelNormal, input.normal.xyz,
-	//	toEye, roughness,
-	//	ambientOcclusion, diffuseColor, specularColor
-	//);
     
-    float ambiance = 0.3f;
+    //ambientOcclusion = 0.0f;
+    //metalness = 1.0f;
+    //roughness = 0.0f;
 
+    float3 AmbientLightColor = 1.0f;
+    
+    float3 specularColor = lerp(0.04f, albedo.rgb, metalness);
+    float3 diffuseColor = lerp(0.00f, albedo.rgb, 1.0f - metalness);
+
+    float3 ambiance = AmbientLightColor.rgb * EvaluateAmbiance(
+		aCubeMap, aSampler, input.normal, normal,
+		toEye, roughness,
+		ambientOcclusion, diffuseColor, specularColor
+	);
+    
     float3 directionalLight;
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = 1.0f;
     float3 DirectionalLightTransform = normalize(float3(cos(time), 1.0f, sin(time)));
     
-    if (DirectionalLightSoftness == 0.f)
+    if (DirectionalLightSoftness == 0.0f)
     {
         directionalLight = EvaluateDirectionalLight(
 			diffuseColor, specularColor, pixelNormal, roughness,
-			DirectionalLightColor.xyz, DirectionalLightTransform, toEye.xyz);
+			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
     else
     {
         directionalLight = EvaluateSoftDirectionalLight(
 			diffuseColor, specularColor, pixelNormal, roughness, DirectionalLightSoftness,
-			DirectionalLightColor.xyz, DirectionalLightTransform, toEye.xyz);
+			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
 	
     //float3 emissiveAlbedo = albedo.rgb * emissive;

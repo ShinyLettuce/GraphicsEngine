@@ -57,7 +57,7 @@ int main()
 	inputHandler.InitHandle(hWnd);
 
 	GraphicsEngine graphicsEngine;
-	if (!graphicsEngine.InitializePng(hWnd))
+	if (!graphicsEngine.Initialize(hWnd))
 	{
 		return 0;
 	}

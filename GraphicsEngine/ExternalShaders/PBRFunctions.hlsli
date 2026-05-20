@@ -672,6 +672,78 @@ float3 EvaluateSpotLight(float3 albedoColor, float3 specularColor, float3 normal
 
 #endif
 
+float bias(float value, float b)
+{
+    return (b > 0.0) ? pow(abs(value), log(b) / log(0.5)) : 0.0f;
+}
+
+float gain(float value, float g)
+{
+    return 0.5 * ((value < 0.5) ? bias(2.0 * value, 1.0 - g) : (2.0 - bias(2.0 - 2.0 * value, 1.0 - g)));
+}
+
+float RoughnessFromPerceptualRoughness(float perceptualRoughness)
+{
+    return perceptualRoughness * perceptualRoughness;
+}
+
+float PerceptualRougnessFromRoughness(float roughness)
+{
+    return sqrt(max(0.0, roughness));
+}
+
+float PerceptualRougnessFromSpecularPower(float specularPower)
+{
+    float roughness = sqrt(2.0 / (specularPower + 2.0));
+    return PerceptualRougnessFromRoughness(roughness);
+}
+
+float3 GetSpecularDominantDir(float3 vN, float3 vR, float roughness)
+{
+    float invRough = saturate(1 - roughness);
+    float alpha = invRough * (sqrt(invRough) + roughness);
+
+    return lerp(vN, vR, alpha);
+}
+
+float SpecularPowerFromPerceptualRoughness(float perceptualRoughness)
+{
+    float roughness = RoughnessFromPerceptualRoughness(perceptualRoughness);
+    return (2.0 / max(FLT_EPSILON, roughness * roughness)) - 2.0;
+}
+
+float BurleyToMip(float fPerceptualRoughness, int nMips, float NdotR)
+{
+    float specPower = SpecularPowerFromPerceptualRoughness(fPerceptualRoughness);
+    specPower /= (4 * max(NdotR, FLT_EPSILON));
+    float scale = PerceptualRougnessFromSpecularPower(specPower);
+    return scale * (nMips - 1 - nMipOffset);
+}
+
+float GetReductionInMicrofacets(float perceptualRoughness)
+{
+    float roughness = RoughnessFromPerceptualRoughness(perceptualRoughness);
+
+    return 1.0 / (roughness * roughness + 1.0);
+}
+
+float EmpiricalSpecularAO(float ao, float perceptualRoughness)
+{
+    float smooth = 1 - perceptualRoughness;
+    float specAO = gain(ao, 0.5 + max(0.0, smooth * 0.4));
+
+    return min(1.0, specAO + lerp(0.0, 0.5, smooth * smooth * smooth * smooth));
+}
+
+float ApproximateSpecularSelfOcclusion(float3 vR, float3 vertNormalNormalized)
+{
+    const float fadeParam = 1.3;
+    float rimmask = clamp(1 + fadeParam * dot(vR, vertNormalNormalized), 0.0, 1.0);
+    rimmask *= rimmask;
+
+    return rimmask;
+}
+
 float2 BrdfSpecularColorScaleOffset(float roughness, float NoV)
 {
     const float4 c0 = { -1, -0.0275, -0.572, 0.022 };
@@ -733,6 +805,41 @@ float3 Fresnel_Schlick(float3 specularColor, float3 h, float3 v)
 float3 Specular(float3 specularColor, float3 h, float3 v, float a, float NdL, float NdV, float NdH)
 {
     return ((NormalDistribution_GGX(a, NdH) * Geometric_Smith_Schlick_GGX(a, NdV, NdL)) * Fresnel_Schlick(specularColor, h, v)) / (4.0f * NdL * NdV + 0.0001f);
+}
+
+float3 EvaluateAmbiance(TextureCube lysBurleyCube, SamplerState s, float3 vN, float3 VNUnit, float3 toEye, float perceptualRoughness, float ao, float3 dfcol, float3 spccol)
+{
+    uint width;
+    uint height;
+    uint numLevels;
+    lysBurleyCube.GetDimensions(0, width, height, numLevels);
+    
+    int numMips = numLevels;
+    const int nrBrdMips = numMips - nMipOffset;
+    float VdotN = saturate(dot(toEye, vN)); //clamp(dot(toEye, vN), 0.0, 1.0f);
+    const float3 vRorg = 2 * vN * VdotN - toEye;
+
+    float3 vR = GetSpecularDominantDir(vN, vRorg, RoughnessFromPerceptualRoughness(perceptualRoughness));
+    float RdotNsat = saturate(dot(vN, vR));
+
+    float mipLevel = BurleyToMip(perceptualRoughness, numMips, RdotNsat);
+
+    float3 specRad = lysBurleyCube.SampleLevel(s, vR, mipLevel).xyz;
+    float3 diffRad = lysBurleyCube.SampleLevel(s, vN, (float) (nrBrdMips - 1)).xyz;
+
+    float fT = 1.0 - RdotNsat;
+    float fT5 = fT * fT;
+    fT5 = fT5 * fT5 * fT;
+    spccol = lerp(spccol, (float3) 1.0, fT5);
+
+    float fFade = GetReductionInMicrofacets(perceptualRoughness);
+    fFade *= EmpiricalSpecularAO(ao, perceptualRoughness);
+    fFade *= ApproximateSpecularSelfOcclusion(vR, VNUnit);
+
+    float3 ambientdiffuse = ao * dfcol * diffRad;
+    float3 ambientspecular = fFade * spccol * specRad;
+
+    return ambientdiffuse + ambientspecular;
 }
 
 float3 EvaluateDirectionalLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float3 lightColor, float3 lightDir, float3 viewDir)
