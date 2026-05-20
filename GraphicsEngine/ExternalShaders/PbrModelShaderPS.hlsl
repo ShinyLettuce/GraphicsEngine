@@ -1,6 +1,14 @@
 #include "../Common.hlsli"
 #include "PBRFunctions.hlsli"
 
+float3 SamplePackedNormal(Texture2D texture2d, SamplerState samplerState, float2 uv)
+{
+    float3 n = texture2d.Sample(samplerState, uv).xyy;
+    n.xy = 2.0f * n.xy - 1.0f;
+    n.z = sqrt(1.0f - saturate(n.x * n.x + n.y * n.y));
+    return normalize(n);
+}
+
 PixelOutput main(PixelInputType input)
 {
     PixelOutput result;
@@ -17,31 +25,10 @@ PixelOutput main(PixelInputType input)
     float4 snowAlbedo = aSnowTexture.Sample(aSampler, scaledUV);
     
     float4 albedo = lerp(rockAlbedo, lerp(grassAlbedo, snowAlbedo, heightBlend), slopeBlend);
-    
-    //if (albedo.a <= alphaTestThreshold)
-    //{
-    //    discard;
-    //    result.color = float4(0.f, 0.f, 0.f, 0.f);
-    //    return result;
-    //}
 
-    float3 grassNormal = aGrassNormalTexture.Sample(aSampler, scaledUV).xyy;
-
-    grassNormal.xy = 2.0f * grassNormal.xy - 1.0f;
-    grassNormal.z = sqrt(1 - saturate(grassNormal.x * grassNormal.x + grassNormal.y * grassNormal.y));
-    grassNormal = normalize(grassNormal);
-    
-    float3 rockNormal = aRockNormalTexture.Sample(aSampler, scaledUV).xyy;
-    
-    rockNormal.xy = 2.0f * rockNormal.xy - 1.0f;
-    rockNormal.z = sqrt(1 - saturate(rockNormal.x * rockNormal.x + rockNormal.y * rockNormal.y));
-    rockNormal = normalize(rockNormal);
-    
-    float3 snowNormal = aSnowNormalTexture.Sample(aSampler, scaledUV).xyy;
-    
-    snowNormal.xy = 2.0f * snowNormal.xy - 1.0f;
-    snowNormal.z = sqrt(1 - saturate(snowNormal.x * snowNormal.x + snowNormal.y * snowNormal.y));
-    snowNormal = normalize(snowNormal);
+    float3 grassNormal = SamplePackedNormal(aGrassTexture, aSampler, scaledUV);   
+    float3 rockNormal = SamplePackedNormal(aRockTexture, aSampler, scaledUV);
+    float3 snowNormal = SamplePackedNormal(aSnowTexture, aSampler, scaledUV);
     
     float3 normal = lerp(rockNormal, lerp(grassNormal, snowNormal, heightBlend), slopeBlend).rgb;
 
@@ -106,9 +93,7 @@ PixelOutput main(PixelInputType input)
 			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
 	
-    //float3 emissiveAlbedo = albedo.rgb * emissive;
     float3 radiance = directionalLight + ambiance;
-
 
     result.color.rgb = radiance * albedo.rgb;
     result.color.a = albedo.a;
