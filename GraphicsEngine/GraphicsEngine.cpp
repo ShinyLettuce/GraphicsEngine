@@ -179,6 +179,12 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	myDevice->CreateRasterizerState(&raymarchRasterizerDesc, &myRaymarchRasterizerState);
 
+	D3D11_RASTERIZER_DESC planarReflectionRasterizerState{ };
+	planarReflectionRasterizerState.FillMode = D3D11_FILL_SOLID;
+	planarReflectionRasterizerState.CullMode = D3D11_CULL_FRONT;
+
+	myDevice->CreateRasterizerState(&planarReflectionRasterizerState, &myPlanarReflectionRasterizerState);
+
 	myContext->VSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 	myContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 
@@ -205,7 +211,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	bool success;
 
-	success = myPlaneMesh.InitPlane(myDevice.Get(), "PbrModelShaderVS.cso", "PbrModelShaderPS.cso", 32.0f, 32.0f, 128, 128, noise, initSize * (1 << octaves));
+	success = myPlaneMesh.InitPlane(myDevice.Get(), "PbrModelShaderVS.cso", "PbrModelShaderPS.cso", 128.0f, 128.0f, 256, 256, noise, initSize * (1 << octaves));
 
 	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
 		{
@@ -263,7 +269,6 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	{
 		return false;
 	}
-
 
 	if (!myGrassTexture.Initialize(myDevice.Get(), myContext.Get(), "Textures/Grass_c.png", true))
 	{
@@ -373,12 +378,12 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 	deltaDir = deltaDir * Matrix3x3<float>::CreateRotationAroundX(myCamera.GetRotation().x) * Matrix3x3<float>::CreateRotationAroundY(myCamera.GetRotation().y);
 
 	myCamera.SetPosition3(myCamera.GetPosition() + deltaDir);
-	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.f } * 0.01f });
+	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.0f } * 0.01f });
 }
 
 void GraphicsEngine::Render()
 {
-	const float color[4]{ 0.05f, 0.05f, 0.05f, 1.0f };
+	const float color[4]{ 0.9f, 0.6f, 0.8f, 1.0f };
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -390,7 +395,8 @@ void GraphicsEngine::Render()
 		myContext->Map(myPerFrameBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
 		memcpy(mappedBuffer.pData, &perFrameBuffer, sizeof(Buffer::PerFrameBuffer));
 		myContext->Unmap(myPerFrameBuffer.Get(), 0);
-		myContext->PSSetConstantBuffers(1, 1, myPerFrameBuffer.GetAddressOf());
+		myContext->PSSetConstantBuffers(2, 1, myPerFrameBuffer.GetAddressOf());
+		myContext->VSSetConstantBuffers(2, 1, myPerFrameBuffer.GetAddressOf());
 	}
 
 	myCamera.Bind(myContext.Get());
@@ -412,10 +418,15 @@ void GraphicsEngine::Render()
 	myCubeMap.Bind(myContext.Get(), 10);
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
-	myPlaneMesh.Render(myContext.Get(), { 32.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
 
-	myContext->RSSetState(myRaymarchRasterizerState.Get());
-	myCubeMesh.Render(myContext.Get(), Vector3<float>{ -8.0f, 4.0f, 0.0f }, Vector3<float>{ 24.0f, 24.0f, 24.0f });
+	myCamera.BindUpsideDown(myContext.Get(), myTime);
+
+	myContext->RSSetState(myPlanarReflectionRasterizerState.Get());
+	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+
+	//myContext->RSSetState(myRaymarchRasterizerState.Get());
+	//myCubeMesh.Render(myContext.Get(), Vector3<float>{ -8.0f, 4.0f, 0.0f }, Vector3<float>{ 24.0f, 24.0f, 24.0f });
 
 	mySwapChain->Present(1, 0);
 }

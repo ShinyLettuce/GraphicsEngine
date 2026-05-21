@@ -10,7 +10,7 @@ cbuffer objectBuffer : register(b1)
     float4x4 modelToWorldMatrix;
 };
 
-cbuffer frameBuffer : register(b1)
+cbuffer frameBuffer : register(b2)
 {
     float time;
 }
@@ -52,6 +52,7 @@ struct PixelInputType
     float3 bitangent : BITANGENT;
     float2 uv : TEXCOORD;
     float4 color : COLOR;
+    float clip : SV_CLIPDISTANCE;
 };
 
 struct PixelOutput

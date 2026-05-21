@@ -34,5 +34,8 @@ PixelInputType main(VertexInputType input)
 	result.bitangent = vertexWorldBinormal;
 	result.tangent = vertexWorldTangent;
 	
+    //result.clip = 1.0f;//-vertexWorldPos.y * worldToClipMatrix._m11 - sin(time);
+    result.clip = vertexWorldPos.y + sin(time);
+
 	return result;
 }

@@ -45,7 +45,7 @@ PixelOutput main(PixelInputType input)
     float3 toEye = normalize(eyePosition - input.worldPosition.xyz);
     
     float slopeBlend = smoothstep(0.7f, 1.0f, input.normal.y);
-    float heightBlend = smoothstep(-0.05f, 0.25f, input.worldPosition.y);
+    float heightBlend = smoothstep(-0.05f, 1.4f, input.worldPosition.y);
     
     float4 grassAlbedo = aGrassTexture.Sample(aSampler, scaledUV);
     float4 rockAlbedo = aRockTexture.Sample(aSampler, scaledUV);
@@ -85,10 +85,10 @@ PixelOutput main(PixelInputType input)
     float metalness = material.b;
     float roughness = material.g;
 
-    float3 AmbientLightColor = 0.5f;
-    
-    float3 specularColor = lerp(0.04f, albedo.rgb, metalness);
-    float3 diffuseColor = lerp(0.00f, albedo.rgb, 1.0f - metalness);
+    float3 AmbientLightColor = float3(0.2f, 0.3f, 0.4f);
+
+    float3 specularColor = lerp(0.07f, albedo.rgb, metalness);
+    float3 diffuseColor = lerp(0.0f, albedo.rgb, 1.0f - metalness);
 
     float3 ambiance = AmbientLightColor * EvaluateAmbiance(
 		aCubeMap, aSampler, pixelNormal, input.normal,
@@ -99,7 +99,7 @@ PixelOutput main(PixelInputType input)
     float3 directionalLight;
 
     float DirectionalLightSoftness = 0.0f;
-    float3 DirectionalLightColor = 0.7f;
+    float3 DirectionalLightColor = float3(0.6f, 0.45f, 0.3f);
     float3 DirectionalLightTransform = normalize(float3(cos(time * 0.5f), 1.0f, sin(time * 0.5f)));
     
     if (DirectionalLightSoftness == 0.0f)

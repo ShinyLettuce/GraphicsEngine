@@ -17,6 +17,7 @@ public:
 	bool Init(ID3D11Device* aDevice ,float aFarClip, float aNearClip, float aFOVinDeg, float aAspect);
 
 	void Bind(ID3D11DeviceContext* aDeviceContext);
+	void BindUpsideDown(ID3D11DeviceContext* aDeviceContext, float aTime);
 	
 	void SetRotation(Vector3<float> aRotation);
 	Vector3<float> GetRotation() { return myRotation; }

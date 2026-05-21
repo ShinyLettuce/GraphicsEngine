@@ -36,6 +36,7 @@ private:
 	ComPtr<ID3D11Buffer> myPerFrameBuffer;
 
 	ComPtr<ID3D11RasterizerState> myDefaultRasterizerState;
+	ComPtr<ID3D11RasterizerState> myPlanarReflectionRasterizerState;
 	ComPtr<ID3D11RasterizerState> myRaymarchRasterizerState;
 
 	Camera myCamera;

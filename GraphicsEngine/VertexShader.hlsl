@@ -12,5 +12,6 @@ PixelInputType main(VertexInputType input)
     output.bitangent = normalize(mul(modelToWorldMatrix, float4(input.bitangent, 0.0f)));
     output.uv = input.uv;
     output.color = input.color;
+    output.clip = 1.0f;
     return output;
 }
