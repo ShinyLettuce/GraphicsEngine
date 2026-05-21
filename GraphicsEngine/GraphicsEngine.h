@@ -41,6 +41,7 @@ private:
 
 	Camera myCamera;
 	Mesh myPlaneMesh;
+	Mesh myLesserPlaneMesh;
 	Mesh myCubeMesh;
 
 	Texture myGrassTexture;

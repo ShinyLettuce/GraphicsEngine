@@ -213,6 +213,19 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myPlaneMesh.InitPlane(myDevice.Get(), "PbrModelShaderVS.cso", "PbrModelShaderPS.cso", 128.0f, 128.0f, 256, 256, noise, initSize * (1 << octaves));
 
+	success = myLesserPlaneMesh.Init(myDevice.Get(), "PbrModelShaderVS.cso", "PbrModelShaderPS.cso",
+		{
+			{ { -0.5f, 0.0f, -0.5f,  1.0f } },
+			{ { -0.5f, 0.0f,  0.5f,  1.0f } },
+			{ {  0.5f, 0.0f,  0.5f,  1.0f } },
+			{ {  0.5f, 0.0f, -0.5f,  1.0f } },
+
+		},
+		{
+			0,1,2,
+			0,2,3
+		});
+
 	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
 		{
 			{ { -1.0f, -1.0f, -1.0f,  1.0f } },
@@ -418,6 +431,7 @@ void GraphicsEngine::Render()
 	myCubeMap.Bind(myContext.Get(), 10);
 
 	myContext->RSSetState(myDefaultRasterizerState.Get());
+	myLesserPlaneMesh.Render(myContext.Get(), { 80.0f, -sin(myTime) + 0.001f, 0.0f}, Vector3<float>{128.f, 1.f, 128.f});
 	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
 
 	myCamera.BindUpsideDown(myContext.Get(), myTime);
