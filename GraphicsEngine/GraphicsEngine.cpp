@@ -213,7 +213,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myPlaneMesh.InitPlane(myDevice.Get(), "PbrModelShaderVS.cso", "PbrModelShaderPS.cso", 128.0f, 128.0f, 256, 256, noise, initSize * (1 << octaves));
 
-	success = myLesserPlaneMesh.Init(myDevice.Get(), "PbrModelShaderVS.cso", "PbrModelShaderPS.cso",
+	success = myLesserPlaneMesh.Init(myDevice.Get(), "PbrModelShaderVS.cso", "WaterShaderPS.cso",
 		{
 			{ { -0.5f, 0.0f, -0.5f,  1.0f } },
 			{ { -0.5f, 0.0f,  0.5f,  1.0f } },
@@ -237,27 +237,27 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 			{ { -1.0f,  1.0f,  1.0f,  1.0f } },
 			{ {  1.0f,  1.0f,  1.0f,  1.0f } },
 		},
-		{
-			// Front face
-			0, 4, 5,
-			5, 1, 0,
-			// Top face
-			4, 6, 7,
-			7, 5, 4,
-			// Back face
-			3, 7, 6,
-			6, 2, 3,
-			// Bottom face
-			2, 0, 1,
-			1, 3, 2,
-			// Left face
-			2, 6, 4,
-			4, 0, 2,
-			// Right face
-			1, 5, 7,
-			7, 3, 1
-		});
-	
+	{
+		// Front face
+		0, 4, 5,
+		5, 1, 0,
+		// Top face
+		4, 6, 7,
+		7, 5, 4,
+		// Back face
+		3, 7, 6,
+		6, 2, 3,
+		// Bottom face
+		2, 0, 1,
+		1, 3, 2,
+		// Left face
+		2, 6, 4,
+		4, 0, 2,
+		// Right face
+		1, 5, 7,
+		7, 3, 1
+	});
+
 	if (!success)
 	{
 		return false;
@@ -327,10 +327,43 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	{
 		return false;
 	}
-	
+
 	if (!myCubeMap.InitializeDds(myDevice.Get(), myContext.Get(), L"Textures/cube_1024_preblurred_angle3_Skansen3.dds", false))
 	{
 		return false;
+	}
+
+	{
+		ComPtr<ID3D11Texture2D> backBufferTexture;
+
+		result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
+		if (FAILED(result))
+		{
+			return false;
+		}
+		D3D11_TEXTURE2D_DESC backBufferDesc{ 0 };
+		backBufferTexture->GetDesc(&backBufferDesc);
+
+		HRESULT result;
+		D3D11_TEXTURE2D_DESC desc = { 0 };
+		desc.Width = backBufferDesc.Width;
+		desc.Height = backBufferDesc.Height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		ID3D11Texture2D* texture;
+		result = myDevice->CreateTexture2D(&desc, nullptr, &texture);
+		assert(SUCCEEDED(result));
+		result = myDevice->CreateShaderResourceView(texture, nullptr, &myWaterReflectionRenderTarget.shaderResourceView);
+		assert(SUCCEEDED(result));
+		result = myDevice->CreateRenderTargetView(texture, nullptr, &myWaterReflectionRenderTarget.renderTargetView);
+		texture->Release();
 	}
 
 	return true;
@@ -377,9 +410,9 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 	{
 		deltaDir.y += 1.f;
 	}
-	
+
 	Vector2<int> mouseDelta = { (int)aInput.GetDeltaMousePosition().x, (int)aInput.GetDeltaMousePosition().y };
-	if (mouseDelta.Length() > 0 )
+	if (mouseDelta.Length() > 0)
 	{
 		deltaRotationAroundY += (float)mouseDelta.x;
 		deltaRotationAroundX += (float)mouseDelta.y;
@@ -391,14 +424,13 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 	deltaDir = deltaDir * Matrix3x3<float>::CreateRotationAroundX(myCamera.GetRotation().x) * Matrix3x3<float>::CreateRotationAroundY(myCamera.GetRotation().y);
 
 	myCamera.SetPosition3(myCamera.GetPosition() + deltaDir);
-	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.0f } * 0.01f });
+	myCamera.SetRotation({ myCamera.GetRotation() + Vector3<float>{deltaRotationAroundX, deltaRotationAroundY, 0.0f } *0.01f });
 }
 
 void GraphicsEngine::Render()
 {
 	const float color[4]{ 0.9f, 0.6f, 0.8f, 1.0f };
-	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
-	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
 
 	{
 		Buffer::PerFrameBuffer perFrameBuffer;
@@ -411,8 +443,6 @@ void GraphicsEngine::Render()
 		myContext->PSSetConstantBuffers(2, 1, myPerFrameBuffer.GetAddressOf());
 		myContext->VSSetConstantBuffers(2, 1, myPerFrameBuffer.GetAddressOf());
 	}
-
-	myCamera.Bind(myContext.Get());
 
 	myNoiseTexture.Bind(myContext.Get(), 0);
 
@@ -430,14 +460,29 @@ void GraphicsEngine::Render()
 
 	myCubeMap.Bind(myContext.Get(), 10);
 
-	myContext->RSSetState(myDefaultRasterizerState.Get());
-	myLesserPlaneMesh.Render(myContext.Get(), { 80.0f, -sin(myTime) + 0.001f, 0.0f}, Vector3<float>{128.f, 1.f, 128.f});
-	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+
+
+
+	myContext->OMSetRenderTargets(1, myWaterReflectionRenderTarget.renderTargetView.GetAddressOf(), myDepthBuffer.Get());
+	myContext->ClearRenderTargetView(myWaterReflectionRenderTarget.renderTargetView.Get(), color);
+	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	myContext->RSSetState(myPlanarReflectionRasterizerState.Get());
 
 	myCamera.BindUpsideDown(myContext.Get(), myTime);
-
-	myContext->RSSetState(myPlanarReflectionRasterizerState.Get());
 	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+
+	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), myDepthBuffer.Get());
+	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
+	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	myContext->RSSetState(myDefaultRasterizerState.Get());
+
+	myContext->PSSetShaderResources(11, 1, myWaterReflectionRenderTarget.shaderResourceView.GetAddressOf());
+
+
+	myCamera.Bind(myContext.Get());
+	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+	myLesserPlaneMesh.Render(myContext.Get(), { 80.0f, -sin(myTime) + 0.001f, 0.0f }, Vector3<float>{128.f, 1.f, 128.f});
+
 
 	//myContext->RSSetState(myRaymarchRasterizerState.Get());
 	//myCubeMesh.Render(myContext.Get(), Vector3<float>{ -8.0f, 4.0f, 0.0f }, Vector3<float>{ 24.0f, 24.0f, 24.0f });

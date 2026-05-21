@@ -3,6 +3,7 @@
 #include "InputHandler.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "RenderTarget.h"
 #include "Texture.h"
 
 #include <wrl/client.h>
@@ -43,6 +44,7 @@ private:
 	Mesh myPlaneMesh;
 	Mesh myLesserPlaneMesh;
 	Mesh myCubeMesh;
+	RenderTarget myWaterReflectionRenderTarget;
 
 	Texture myGrassTexture;
 	Texture myGrassNormalTexture;

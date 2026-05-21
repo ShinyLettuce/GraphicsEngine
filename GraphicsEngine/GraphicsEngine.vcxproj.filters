@@ -107,6 +107,9 @@
     <ClInclude Include="DDSTextureLoader11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
@@ -116,6 +119,7 @@
     <FxCompile Include="RaymarchWater.hlsl" />
     <FxCompile Include="ExternalShaders\PbrModelShaderPS.hlsl" />
     <FxCompile Include="ExternalShaders\PbrModelShaderVs.hlsl" />
+    <FxCompile Include="WaterShaderPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />

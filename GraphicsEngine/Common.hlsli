@@ -31,6 +31,8 @@ Texture2D aSnowMaterialTexture : register(t9);
 
 TextureCube aCubeMap : register(t10);
 
+Texture2D aRenderTexture : register(t11);
+
 SamplerState aSampler : register(s0);
 
 struct VertexInputType
