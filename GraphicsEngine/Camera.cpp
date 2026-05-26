@@ -74,7 +74,7 @@ void Camera::BindUpsideDown(ID3D11DeviceContext* aDeviceContext, float aTime)
 		1,0,0,0,
 		0,-1,0,0,
 		0,0,1,0,
-		myPosition.x, -myPosition.y - sin(aTime) * 2.f, myPosition.z, 1,
+		myPosition.x, -myPosition.y/* - sin(aTime) * 2.f*/, myPosition.z, 1,
 	}
 	};
 

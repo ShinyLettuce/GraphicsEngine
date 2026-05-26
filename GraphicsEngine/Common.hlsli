@@ -32,6 +32,7 @@ Texture2D aSnowMaterialTexture : register(t9);
 TextureCube aCubeMap : register(t10);
 
 Texture2D aRenderTexture : register(t11);
+Texture2D<float2> aShadowTexture : register(t12);
 
 SamplerState aSampler : register(s0);
 
@@ -55,6 +56,12 @@ struct PixelInputType
     float2 uv : TEXCOORD;
     float4 color : COLOR;
     float clip : SV_CLIPDISTANCE;
+};
+
+struct ShadowPixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
 };
 
 struct PixelOutput

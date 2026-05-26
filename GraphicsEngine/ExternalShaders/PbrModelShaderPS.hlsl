@@ -119,6 +119,11 @@ PixelOutput main(PixelInputType input)
 
     result.color.rgb = tonemap_s_gamut3_cine(radiance);
     result.color.a = albedo.a;
+    
+    result.color = 0.0f;
+    //result.color.rg = lerp(input.uv, aShadowTexture.Sample(aSampler, input.uv).rg, sin(time) * 0.5f + 0.5f);
+    result.color.rg = aShadowTexture.Sample(aSampler, input.uv).rg;
+    
     return result;
 }
 

@@ -120,6 +120,8 @@
     <FxCompile Include="ExternalShaders\PbrModelShaderPS.hlsl" />
     <FxCompile Include="ExternalShaders\PbrModelShaderVs.hlsl" />
     <FxCompile Include="WaterShaderPS.hlsl" />
+    <FxCompile Include="ShadowPS.hlsl" />
+    <FxCompile Include="ShadowVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />

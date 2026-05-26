@@ -154,14 +154,14 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 				(j < aResolutionWidth - 1) ? 1 : -1,
 				(i < aResolutionHeight - 1) ? 1 : -1
 			};
-			
+
 			int indices[3]
 			{
 				i + j * aResolutionWidth,
 				(i + offset.y) + j * aResolutionWidth,
 				i + (j + offset.x) * aResolutionWidth
 			};
-			
+
 			Vector3<float> positions[3]
 			{
 				{ vertices[indices[0]].position.x, vertices[indices[0]].position.y, vertices[indices[0]].position.z },
@@ -208,7 +208,7 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 	return Init(aDevice, aVertexShaderPath, aPixelShaderPath, vertices, indices);
 }
 
-void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, Vector3<float> aScaling)
+void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, Vector3<float> aScaling, bool aUseDefault)
 {
 	{
 		Buffer::PerObjectBufferData objectBufferData{
@@ -218,7 +218,7 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslati
 				0.f, aScaling.y, 0.f, 0.f,
 				0.f, 0.f, aScaling.z, 0.f,
 				aTranslation.x, aTranslation.y, aTranslation.z, 1.f
-			} 
+			}
 		};
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
@@ -235,7 +235,9 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslati
 	unsigned int offset = 0;
 	aDeviceContext->IASetVertexBuffers(0, 1, myVertexBuffer.GetAddressOf(), &stride, &offset);
 	aDeviceContext->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
 	aDeviceContext->VSSetShader(myVertexShader.Get(), nullptr, 0);
 	aDeviceContext->PSSetShader(myPixelShader.Get(), nullptr, 0);
+
 	aDeviceContext->DrawIndexed((UINT)myIndices.size(), 0, 0);
 }

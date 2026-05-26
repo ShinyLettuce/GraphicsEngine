@@ -34,7 +34,7 @@ public:
 	bool Init(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, const std::vector<Vertex>& aVertices, const std::vector<Index>& aIndices);
 	bool InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const char* aPixelShaderPath, float aWidth, float aHeight, int aResolutionWidth, int aResolutionHeight, const std::vector<float>& aTexture, int aTextureWidth);
 
-	void Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, Vector3<float> aScaling);
+	void Render(ID3D11DeviceContext* aDeviceContext, Vector3<float> aTranslation, Vector3<float> aScaling, bool aUseDefault = true);
 private:
 	std::vector<Vertex> myVertices;
 	std::vector<Index> myIndices;

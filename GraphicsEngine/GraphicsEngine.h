@@ -43,8 +43,13 @@ private:
 	Camera myCamera;
 	Mesh myPlaneMesh;
 	Mesh myLesserPlaneMesh;
+	Mesh myFullscreenQuad;
 	Mesh myCubeMesh;
 	RenderTarget myWaterReflectionRenderTarget;
+	RenderTarget myShadowMap;
+
+	ComPtr<ID3D11VertexShader> myShadowVertexShader;
+	ComPtr<ID3D11PixelShader> myShadowPixelShader;
 
 	Texture myGrassTexture;
 	Texture myGrassNormalTexture;

@@ -227,16 +227,16 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		});
 
 	success = myCubeMesh.Init(myDevice.Get(), "VertexShader.cso", "RayMarchWater.cso",
-		{
-			{ { -1.0f, -1.0f, -1.0f,  1.0f } },
-			{ {  1.0f, -1.0f, -1.0f,  1.0f } },
-			{ { -1.0f, -1.0f,  1.0f,  1.0f } },
-			{ {  1.0f, -1.0f,  1.0f,  1.0f } },
-			{ { -1.0f,  1.0f, -1.0f,  1.0f } },
-			{ {  1.0f,  1.0f, -1.0f,  1.0f } },
-			{ { -1.0f,  1.0f,  1.0f,  1.0f } },
-			{ {  1.0f,  1.0f,  1.0f,  1.0f } },
-		},
+	{
+				{ { -1.0f, -1.0f, -1.0f,  1.0f } },
+				{ {  1.0f, -1.0f, -1.0f,  1.0f } },
+				{ { -1.0f, -1.0f,  1.0f,  1.0f } },
+				{ {  1.0f, -1.0f,  1.0f,  1.0f } },
+				{ { -1.0f,  1.0f, -1.0f,  1.0f } },
+				{ {  1.0f,  1.0f, -1.0f,  1.0f } },
+				{ { -1.0f,  1.0f,  1.0f,  1.0f } },
+				{ {  1.0f,  1.0f,  1.0f,  1.0f } },
+			},
 	{
 		// Front face
 		0, 4, 5,
@@ -257,6 +257,24 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		1, 5, 7,
 		7, 3, 1
 	});
+
+	if (!success)
+	{
+		return false;
+	}
+
+	success = myFullscreenQuad.Init(myDevice.Get(), "ShadowVS.cso", "ShadowPS.cso",
+		{
+			{ { -1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 0.0f } },
+			{ { -1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 1.0f } },
+			{ {  1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 1.0f } },
+			{ {  1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 0.0f } },
+
+		},
+		{
+			0,1,2,
+			0,2,3
+		});
 
 	if (!success)
 	{
@@ -333,6 +351,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		return false;
 	}
 
+	// Reflection render target
 	{
 		ComPtr<ID3D11Texture2D> backBufferTexture;
 
@@ -365,6 +384,78 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		result = myDevice->CreateRenderTargetView(texture, nullptr, &myWaterReflectionRenderTarget.renderTargetView);
 		texture->Release();
 	}
+
+	// Shadow render target
+	{
+		ComPtr<ID3D11Texture2D> backBufferTexture;
+
+		result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
+		if (FAILED(result))
+		{
+			return false;
+		}
+		D3D11_TEXTURE2D_DESC backBufferDesc{ 0 };
+		backBufferTexture->GetDesc(&backBufferDesc);
+
+		HRESULT result;
+		D3D11_TEXTURE2D_DESC desc = { 0 };
+		desc.Width = backBufferDesc.Width;
+		desc.Height = backBufferDesc.Height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		ID3D11Texture2D* texture;
+		result = myDevice->CreateTexture2D(&desc, nullptr, &texture);
+		assert(SUCCEEDED(result));
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+		result = myDevice->CreateShaderResourceView(texture, nullptr, &myShadowMap.shaderResourceView);
+		assert(SUCCEEDED(result));
+
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc{};
+		rtvDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+		result = myDevice->CreateRenderTargetView(texture, &rtvDesc, &myShadowMap.renderTargetView);
+		texture->Release();
+	}
+
+	myNoiseTexture.Bind(myContext.Get(), 0);
+
+	myGrassTexture.Bind(myContext.Get(), 1);
+	myGrassNormalTexture.Bind(myContext.Get(), 2);
+	myGrassMaterialTexture.Bind(myContext.Get(), 3);
+
+	myRockTexture.Bind(myContext.Get(), 4);
+	myRockNormalTexture.Bind(myContext.Get(), 5);
+	myRockMaterialTexture.Bind(myContext.Get(), 6);
+
+	mySnowTexture.Bind(myContext.Get(), 7);
+	mySnowNormalTexture.Bind(myContext.Get(), 8);
+	mySnowMaterialTexture.Bind(myContext.Get(), 9);
+
+	myCubeMap.Bind(myContext.Get(), 10);
+
+	ID3D11RenderTargetView* nullResource = nullptr;
+
+	float color[4]{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+	myContext->OMSetRenderTargets(1, myShadowMap.renderTargetView.GetAddressOf(), nullptr);
+	myContext->ClearRenderTargetView(myShadowMap.renderTargetView.Get(), color);
+	myContext->RSSetState(myDefaultRasterizerState.Get());
+
+	myFullscreenQuad.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
+
+	myContext->OMSetRenderTargets(1, &nullResource, nullptr);
 
 	return true;
 }
@@ -430,7 +521,7 @@ void GraphicsEngine::Update(const InputHandler& aInput, float aDeltaTime)
 void GraphicsEngine::Render()
 {
 	const float color[4]{ 0.9f, 0.6f, 0.8f, 1.0f };
-
+	const float black[4]{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 	{
 		Buffer::PerFrameBuffer perFrameBuffer;
@@ -460,8 +551,8 @@ void GraphicsEngine::Render()
 
 	myCubeMap.Bind(myContext.Get(), 10);
 
-
-
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	ID3D11RenderTargetView* nullRTV = nullptr;
 
 	myContext->OMSetRenderTargets(1, myWaterReflectionRenderTarget.renderTargetView.GetAddressOf(), myDepthBuffer.Get());
 	myContext->ClearRenderTargetView(myWaterReflectionRenderTarget.renderTargetView.Get(), color);
@@ -471,21 +562,22 @@ void GraphicsEngine::Render()
 	myCamera.BindUpsideDown(myContext.Get(), myTime);
 	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
 
+	myContext->OMSetRenderTargets(1, &nullRTV, nullptr);
+
 	myContext->OMSetRenderTargets(1, myBackBuffer.GetAddressOf(), myDepthBuffer.Get());
 	myContext->ClearRenderTargetView(myBackBuffer.Get(), color);
 	myContext->ClearDepthStencilView(myDepthBuffer.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	myContext->RSSetState(myDefaultRasterizerState.Get());
 
 	myContext->PSSetShaderResources(11, 1, myWaterReflectionRenderTarget.shaderResourceView.GetAddressOf());
-
+	myContext->PSSetShaderResources(12, 1, myShadowMap.shaderResourceView.GetAddressOf());
 
 	myCamera.Bind(myContext.Get());
 	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
-	myLesserPlaneMesh.Render(myContext.Get(), { 80.0f, -sin(myTime) + 0.001f, 0.0f }, Vector3<float>{128.f, 1.f, 128.f});
+	myLesserPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 128.f, 1.f, 128.f });
 
-
-	//myContext->RSSetState(myRaymarchRasterizerState.Get());
-	//myCubeMesh.Render(myContext.Get(), Vector3<float>{ -8.0f, 4.0f, 0.0f }, Vector3<float>{ 24.0f, 24.0f, 24.0f });
+	myContext->PSSetShaderResources(11, 1, &nullSRV);
+	myContext->PSSetShaderResources(12, 1, &nullSRV);
 
 	mySwapChain->Present(1, 0);
 }
