@@ -42,6 +42,7 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
         }
     }
     
+    color.g = 1.0f;
     color.r = s <= 0.0f;
     
     //if (s <= 0.0f)

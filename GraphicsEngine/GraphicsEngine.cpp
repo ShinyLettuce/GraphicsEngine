@@ -115,16 +115,6 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 		myDevice->CreateTexture2D(&depthTextureDesc, nullptr, &depthBufferTexture);
 		myDevice->CreateDepthStencilView(depthBufferTexture.Get(), &depthBufferDesc, &myDepthBuffer);
-
-		D3D11_VIEWPORT viewport = { };
-		viewport.TopLeftX = 0.0f;
-		viewport.TopLeftY = 0.0f;
-		viewport.Width = static_cast<float>(backBufferDesc.Width);
-		viewport.Height = static_cast<float>(backBufferDesc.Height);
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-
-		myContext->RSSetViewports(1, &viewport);
 	}
 
 	// Init per frame buffer
@@ -385,22 +375,14 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		texture->Release();
 	}
 
+	const unsigned int shadowMapResolution = 1024;
+
 	// Shadow render target
 	{
-		ComPtr<ID3D11Texture2D> backBufferTexture;
-
-		result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
-		if (FAILED(result))
-		{
-			return false;
-		}
-		D3D11_TEXTURE2D_DESC backBufferDesc{ 0 };
-		backBufferTexture->GetDesc(&backBufferDesc);
-
 		HRESULT result;
 		D3D11_TEXTURE2D_DESC desc = { 0 };
-		desc.Width = backBufferDesc.Width;
-		desc.Height = backBufferDesc.Height;
+		desc.Width = shadowMapResolution;
+		desc.Height = shadowMapResolution;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_R32G32_FLOAT;
@@ -414,18 +396,10 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		result = myDevice->CreateTexture2D(&desc, nullptr, &texture);
 		assert(SUCCEEDED(result));
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-		srvDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-
 		result = myDevice->CreateShaderResourceView(texture, nullptr, &myShadowMap.shaderResourceView);
 		assert(SUCCEEDED(result));
 
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc{};
-		rtvDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
-		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-
-		result = myDevice->CreateRenderTargetView(texture, &rtvDesc, &myShadowMap.renderTargetView);
+		result = myDevice->CreateRenderTargetView(texture, nullptr, &myShadowMap.renderTargetView);
 		texture->Release();
 	}
 
@@ -453,9 +427,40 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	myContext->ClearRenderTargetView(myShadowMap.renderTargetView.Get(), color);
 	myContext->RSSetState(myDefaultRasterizerState.Get());
 
+	D3D11_VIEWPORT viewPort{};
+	viewPort.TopLeftX = 0;
+	viewPort.TopLeftY = 0;
+	viewPort.Width = shadowMapResolution;
+	viewPort.Height = shadowMapResolution;
+	viewPort.MinDepth = 0;
+	viewPort.MaxDepth = 0;
+	myContext->RSSetViewports(1, &viewPort);
+
 	myFullscreenQuad.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, { 64.0f, 64.0f, 1.0f });
 
 	myContext->OMSetRenderTargets(1, &nullResource, nullptr);
+
+	{
+		ComPtr<ID3D11Texture2D> backBufferTexture;
+
+		result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
+		if (FAILED(result))
+		{
+			return false;
+		}
+		D3D11_TEXTURE2D_DESC backBufferDesc{ 0 };
+		backBufferTexture->GetDesc(&backBufferDesc);
+
+		D3D11_VIEWPORT viewport = { };
+		viewport.TopLeftX = 0.0f;
+		viewport.TopLeftY = 0.0f;
+		viewport.Width = static_cast<float>(backBufferDesc.Width);
+		viewport.Height = static_cast<float>(backBufferDesc.Height);
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+
+		myContext->RSSetViewports(1, &viewport);
+	}
 
 	return true;
 }

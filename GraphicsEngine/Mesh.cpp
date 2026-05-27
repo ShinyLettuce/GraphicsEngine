@@ -142,7 +142,7 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 				{
 					vertex.position.y = aTexture[index] * 8.f;
 					minV = min(minV, vertex.position.y);
-					maxV = min(maxV, vertex.position.y);
+					maxV = max(maxV, vertex.position.y);
 				}
 			}
 
