@@ -17,6 +17,9 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
   
     float3 ro = float3(input.worldPosition.x, h0 + STEP_SIZE, input.worldPosition.y);
     
+    float res = 1.0f;
+    float k = 8.0f;
+    
     float3 rd = normalize(-float3(1.0f, -0.3f, 0.0f));
     float t = 0.0f;
     float s = 0.0f;
@@ -36,6 +39,8 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
         s = p.y - h1; 
         t += STEP_SIZE;
         
+        res = min(res, k * s / t);
+        
         if (s <= 0.0f)
         {
             break;
@@ -43,7 +48,7 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
     }
     
     color.g = 1.0f;
-    color.r = s <= 0.0f;
+    color.r = res;
     
     //if (s <= 0.0f)
     //{
