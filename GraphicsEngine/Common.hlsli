@@ -61,6 +61,7 @@ struct PixelInputType
 struct ShadowPixelInputType
 {
     float4 position : SV_POSITION;
+    float4 worldPosition : POSITION;
     float2 uv : TEXCOORD;
 };
 

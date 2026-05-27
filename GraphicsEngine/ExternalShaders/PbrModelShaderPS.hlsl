@@ -100,7 +100,7 @@ PixelOutput main(PixelInputType input)
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = float3(0.6f, 0.45f, 0.3f);
-    float3 DirectionalLightTransform = normalize(float3(cos(time * 0.5f), 1.0f, sin(time * 0.5f)));
+    float3 DirectionalLightTransform = normalize(float3(0.0f, 0.0f, 1.0f));
     
     if (DirectionalLightSoftness == 0.0f)
     {
@@ -115,14 +115,13 @@ PixelOutput main(PixelInputType input)
 			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
 	
-    float3 radiance = directionalLight + ambiance;
+    float3 radiance = (directionalLight + ambiance) * (1.0f - aShadowTexture.Sample(aSampler, input.uv).r * 0.2f);
 
     result.color.rgb = tonemap_s_gamut3_cine(radiance);
     result.color.a = albedo.a;
     
-    result.color = 0.0f;
-    //result.color.rg = lerp(input.uv, aShadowTexture.Sample(aSampler, input.uv).rg, sin(time) * 0.5f + 0.5f);
-    result.color.rg = aShadowTexture.Sample(aSampler, input.uv).rg;
+    //result.color = 0.0f;
+    //result.color.r = aShadowTexture.Sample(aSampler, input.uv).r;
     
     return result;
 }

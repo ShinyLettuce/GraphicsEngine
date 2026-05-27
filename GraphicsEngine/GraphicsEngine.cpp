@@ -265,10 +265,10 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myFullscreenQuad.Init(myDevice.Get(), "ShadowVS.cso", "ShadowPS.cso",
 		{
-			{ { -1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 0.0f } },
-			{ { -1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 1.0f } },
-			{ {  1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 1.0f } },
-			{ {  1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 0.0f } },
+			{ { -1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 1.0f } },
+			{ { -1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 0.0f } },
+			{ {  1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 0.0f } },
+			{ {  1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 1.0f } },
 
 		},
 		{
@@ -453,7 +453,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	myContext->ClearRenderTargetView(myShadowMap.renderTargetView.Get(), color);
 	myContext->RSSetState(myDefaultRasterizerState.Get());
 
-	myFullscreenQuad.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
+	myFullscreenQuad.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, { 64.0f, 64.0f, 1.0f });
 
 	myContext->OMSetRenderTargets(1, &nullResource, nullptr);
 
@@ -560,7 +560,7 @@ void GraphicsEngine::Render()
 	myContext->RSSetState(myPlanarReflectionRasterizerState.Get());
 
 	myCamera.BindUpsideDown(myContext.Get(), myTime);
-	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+	myPlaneMesh.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
 
 	myContext->OMSetRenderTargets(1, &nullRTV, nullptr);
 
@@ -573,8 +573,8 @@ void GraphicsEngine::Render()
 	myContext->PSSetShaderResources(12, 1, myShadowMap.shaderResourceView.GetAddressOf());
 
 	myCamera.Bind(myContext.Get());
-	myPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
-	myLesserPlaneMesh.Render(myContext.Get(), { 80.0f, 0.0f, 0.0f }, Vector3<float>{ 128.f, 1.f, 128.f });
+	myPlaneMesh.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
+	myLesserPlaneMesh.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, Vector3<float>{ 128.f, 1.f, 128.f });
 
 	myContext->PSSetShaderResources(11, 1, &nullSRV);
 	myContext->PSSetShaderResources(12, 1, &nullSRV);
