@@ -71,10 +71,10 @@ void Camera::BindUpsideDown(ID3D11DeviceContext* aDeviceContext, float aTime)
 	Matrix4x4<float>::CreateRotationAroundY(myRotation.y) *
 	Matrix4x4<float>
 	{
-		1,0,0,0,
-		0,-1,0,0,
-		0,0,1,0,
-		myPosition.x, -myPosition.y/* - sin(aTime) * 2.f*/, myPosition.z, 1,
+		 1.0f, 0.0f, 0.0f, 0.0f,
+		 0.0f,-1.0f, 0.0f, 0.0f,
+		 0.0f, 0.0f, 1.0f, 0.0f,
+		myPosition.x, - myPosition.y - 2.0f * 1.0f, myPosition.z, 1,
 	}
 	};
 

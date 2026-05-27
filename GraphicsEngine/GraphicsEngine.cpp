@@ -574,7 +574,7 @@ void GraphicsEngine::Render()
 
 	myCamera.Bind(myContext.Get());
 	myPlaneMesh.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, Vector3<float>{ 1.0f, 1.0f, 1.0f });
-	myLesserPlaneMesh.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, Vector3<float>{ 128.f, 1.f, 128.f });
+	myLesserPlaneMesh.Render(myContext.Get(), { 0.0f, -1.0f, 0.0f }, Vector3<float>{ 128.f, 1.f, 128.f });
 
 	myContext->PSSetShaderResources(11, 1, &nullSRV);
 	myContext->PSSetShaderResources(12, 1, &nullSRV);

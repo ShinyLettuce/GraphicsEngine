@@ -53,7 +53,7 @@ PixelOutput main(PixelInputType input)
     
     float4 albedo = lerp(rockAlbedo, lerp(grassAlbedo, snowAlbedo, heightBlend), slopeBlend);
 
-    float3 grassNormal = SamplePackedNormal(aGrassNormalTexture, aSampler, scaledUV);   
+    float3 grassNormal = SamplePackedNormal(aGrassNormalTexture, aSampler, scaledUV);
     float3 rockNormal = SamplePackedNormal(aRockNormalTexture, aSampler, scaledUV);
     float3 snowNormal = SamplePackedNormal(aSnowNormalTexture, aSampler, scaledUV);
     
@@ -100,7 +100,7 @@ PixelOutput main(PixelInputType input)
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = float3(0.6f, 0.45f, 0.3f);
-    float3 DirectionalLightTransform = normalize(float3(0.0f, 0.0f, 1.0f));
+    float3 DirectionalLightTransform = normalize(-float3(0.0f, -0.3f, 1.0f));
     
     if (DirectionalLightSoftness == 0.0f)
     {
@@ -115,13 +115,14 @@ PixelOutput main(PixelInputType input)
 			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
 	
-    float3 radiance = (directionalLight + ambiance) * (1.0f - aShadowTexture.Sample(aSampler, input.uv).r * 0.2f);
+    //float3 radiance = (directionalLight + ambiance);
+    float3 radiance = (directionalLight * (1.0f - aShadowTexture.Sample(aSampler, input.uv).r) + ambiance);
 
     result.color.rgb = tonemap_s_gamut3_cine(radiance);
     result.color.a = albedo.a;
     
     //result.color = 0.0f;
-    //result.color.r = aShadowTexture.Sample(aSampler, input.uv).r;
+    //result.color.r += aShadowTexture.Sample(aSampler, input.uv).r * 0.3f;
     
     return result;
 }

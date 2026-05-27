@@ -2,6 +2,7 @@
 
 #include <string>
 #include <fstream>
+#include <iostream>
 
 #include <d3d11.h>
 
@@ -113,6 +114,8 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 {
 	std::vector<Vertex> vertices;
 
+	float minV = FLT_MAX, maxV = FLT_MIN;
+
 	for (unsigned int j = 0; j < aResolutionWidth; ++j)
 	{
 		for (unsigned int i = 0; i < aResolutionHeight; ++i)
@@ -138,12 +141,17 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 				if (index < aTexture.size())
 				{
 					vertex.position.y = aTexture[index] * 8.f;
+					minV = min(minV, vertex.position.y);
+					maxV = min(maxV, vertex.position.y);
 				}
 			}
 
 			vertices.emplace_back(std::move(vertex));
 		}
 	}
+
+	std::cout << "MinV " << minV << '\n';
+	std::cout << "MaxV " << maxV << '\n';
 
 	for (int j = 0; j < aResolutionWidth; ++j)
 	{
