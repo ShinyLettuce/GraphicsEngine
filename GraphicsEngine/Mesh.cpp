@@ -129,8 +129,8 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 			vertex.color.y = 1.0f;
 			vertex.color.z = 1.0f;
 			vertex.color.w = 1.0f;
-			vertex.uv.x = (float)(j / (float)aResolutionWidth);
-			vertex.uv.y = (float)(i / (float)aResolutionWidth);
+			vertex.uv.x = (float)(i / (float)aResolutionWidth);
+			vertex.uv.y = (float)(j / (float)aResolutionHeight);
 
 			// Sample texture
 			{

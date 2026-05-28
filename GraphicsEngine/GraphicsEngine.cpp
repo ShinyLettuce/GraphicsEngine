@@ -205,10 +205,10 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myLesserPlaneMesh.Init(myDevice.Get(), "PbrModelShaderVS.cso", "WaterShaderPS.cso",
 		{
-			{ { -0.5f, 0.0f, -0.5f,  1.0f } },
-			{ { -0.5f, 0.0f,  0.5f,  1.0f } },
-			{ {  0.5f, 0.0f,  0.5f,  1.0f } },
-			{ {  0.5f, 0.0f, -0.5f,  1.0f } },
+			{ { -0.5f, 0.0f, -0.5f,  1.0f }, {}, {}, {}, { 0.0f, 0.0f } },
+			{ { -0.5f, 0.0f,  0.5f,  1.0f }, {}, {}, {}, { 0.0f, 1.0f } },
+			{ {  0.5f, 0.0f,  0.5f,  1.0f }, {}, {}, {}, { 1.0f, 1.0f } },
+			{ {  0.5f, 0.0f, -0.5f,  1.0f }, {}, {}, {}, { 1.0f, 0.0f } },
 
 		},
 		{
@@ -255,11 +255,10 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 
 	success = myFullscreenQuad.Init(myDevice.Get(), "ShadowVS.cso", "ShadowPS.cso",
 		{
-			{ { -1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 1.0f } },
-			{ { -1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 0.0f, 0.0f } },
-			{ {  1.0f,  1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 0.0f } },
-			{ {  1.0f, -1.0f, 0.0f, 1.0f }, {}, {}, {}, { 1.0f, 1.0f } },
-
+			{ { -1.0f, -1.0f, 0.0f, 1.0f } },
+			{ { -1.0f, 1.0f, 0.0f, 1.0f } },
+			{ { 1.0f, 1.0f, 0.0f, 1.0f } },
+			{ { 1.0f, -1.0f, 0.0f, 1.0f } },
 		},
 		{
 			0,1,2,
@@ -436,7 +435,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 	viewPort.MaxDepth = 0;
 	myContext->RSSetViewports(1, &viewPort);
 
-	myFullscreenQuad.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, { 64.0f, 64.0f, 1.0f });
+	myFullscreenQuad.Render(myContext.Get(), { 0.0f, 0.0f, 0.0f }, { 128.0f / 2.0f, 128.0f / 2.0f, 1.0f });
 
 	myContext->OMSetRenderTargets(1, &nullResource, nullptr);
 
@@ -584,5 +583,8 @@ void GraphicsEngine::Render()
 	myContext->PSSetShaderResources(11, 1, &nullSRV);
 	myContext->PSSetShaderResources(12, 1, &nullSRV);
 
+	myCubeMesh.Render(myContext.Get(), { 64.0f + 16.0f, 0.0f, 0.0f }, { 16.0f, 16.0f, 16.0f });
+	myCubeMesh.Render(myContext.Get(), { 0.f, 0.0f, 64.0f + 16.0f }, { 16.0f, 32.0f, 16.0f });
+	
 	mySwapChain->Present(1, 0);
 }

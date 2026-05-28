@@ -115,14 +115,15 @@ PixelOutput main(PixelInputType input)
 			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
 	
-    //float3 radiance = (directionalLight + ambiance);
-    float3 radiance = (directionalLight * (1.0f - aShadowTexture.Sample(aSampler, input.uv).r) + ambiance);
+    float3 radiance = (directionalLight /** (1.0f - aShadowTexture.Sample(aSampler, input.uv).r)*/ + ambiance);
 
     result.color.rgb = tonemap_s_gamut3_cine(radiance);
     result.color.a = albedo.a;
     
-    //result.color = 0.0f;
-    //result.color.r += aShadowTexture.Sample(aSampler, input.uv).r * 0.3f;
+    result.color.r += (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r) * 0.5f;
+    
+    result.color = 0.0f;
+    result.color.rg = scaledUV;
     
     return result;
 }
