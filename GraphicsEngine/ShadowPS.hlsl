@@ -86,7 +86,7 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
         for (int i = 0; i < AO_SAMPLE_COUNT; ++i)
         {
             float3 rd = normalize(FibonacciSphere(i, AO_SAMPLE_COUNT));
-            ao += RayMarch(ro, rd, 0.1f, 3.0f, 0.01f);
+            ao += RayMarch(ro, rd, 0.1f, 0.7f, 0.01f);
         }
         
         ao /= AO_SAMPLE_COUNT;

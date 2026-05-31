@@ -115,7 +115,7 @@ PixelOutput main(PixelInputType input)
 			DirectionalLightColor, DirectionalLightTransform, -toEye);
     }
 	
-    float3 radiance = (directionalLight * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r) * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).g) + ambiance);
+    float3 radiance = (directionalLight * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).g) + ambiance * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r));
 
     result.color.rgb = tonemap_s_gamut3_cine(radiance);
     result.color.a = albedo.a;
