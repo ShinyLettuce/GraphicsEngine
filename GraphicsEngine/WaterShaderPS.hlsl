@@ -1,20 +1,25 @@
 #include "Common.hlsli"
+#include "ExternalShaders/PBRFunctions.hlsli"
 
 PixelOutput main(PixelInputType input)
 {
     uint w, h, ml;
     aRenderTexture.GetDimensions(0, w, h, ml);
     
-    float3 r = float3(0.4f, 0.7f, 0.6f);
+    float3 color = float3(0.4f, 0.7f, 0.6f);
     
-    float3 color = aRenderTexture.SampleLevel(aSampler, input.screenPosition.xy / float2(w, h), 4).rgb;
+    float3 toEye = normalize(eyePosition - input.worldPosition.xyz);
+    
+    float fresnel = Fresnel_Schlick(
+        float3(0.25f, 0.25f, 0.25f),
+        float3(0.0f, 1.0f, 0.0f),
+        toEye);
+    
+    float3 reflection = aRenderTexture.SampleLevel(aSampler, input.screenPosition.xy / float2(w, h), 4).rgb;
     
     PixelOutput output;
-    output.color.rgb = color * r;
+    output.color.rgb = reflection * fresnel * color;
     output.color.a = 1.0f;
-    
-    output.color = 0.0f;
-    output.color.rg = input.uv;
     
     return output;
 }

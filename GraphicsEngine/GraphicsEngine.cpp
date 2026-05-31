@@ -374,7 +374,7 @@ bool GraphicsEngine::Initialize(HWND windowHandle)
 		texture->Release();
 	}
 
-	const unsigned int shadowMapResolution = 1024;
+	const unsigned int shadowMapResolution = 2048;
 
 	// Shadow render target
 	{

@@ -100,30 +100,29 @@ PixelOutput main(PixelInputType input)
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = float3(0.6f, 0.45f, 0.3f);
-    float3 DirectionalLightTransform = normalize(-float3(0.0f, -0.3f, 1.0f));
+    float3 DirectionalLightTransform = normalize(float3(-1.0f, 0.3f, -0.0f)); // flip xz plane???
     
     if (DirectionalLightSoftness == 0.0f)
     {
         directionalLight = EvaluateDirectionalLight(
 			diffuseColor, specularColor, pixelNormal, roughness,
-			DirectionalLightColor, DirectionalLightTransform, toEye);
+			DirectionalLightColor, DirectionalLightTransform, -toEye);
     }
     else
     {
         directionalLight = EvaluateSoftDirectionalLight(
 			diffuseColor, specularColor, pixelNormal, roughness, DirectionalLightSoftness,
-			DirectionalLightColor, DirectionalLightTransform, toEye);
+			DirectionalLightColor, DirectionalLightTransform, -toEye);
     }
 	
-    float3 radiance = (directionalLight /** (1.0f - aShadowTexture.Sample(aSampler, input.uv).r)*/ + ambiance);
+    float3 radiance = (directionalLight * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r) * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).g) + ambiance);
 
     result.color.rgb = tonemap_s_gamut3_cine(radiance);
     result.color.a = albedo.a;
     
-    result.color.r += (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r) * 0.5f;
-    
     //result.color = 0.0f;
-    //result.color.rg = scaledUV;
+    //result.color.g += aShadowTexture.Sample(aSampler, scaledUV).g * 0.25f;
+    //result.color.r += aShadowTexture.Sample(aSampler, scaledUV).r;
     
     return result;
 }
