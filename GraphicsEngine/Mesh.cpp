@@ -121,16 +121,16 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 		for (unsigned int i = 0; i < aResolutionHeight; ++i)
 		{
 			Vertex vertex;
-			vertex.position.x = (float)i * (aWidth / aResolutionWidth) - aWidth * 0.5f;
+			vertex.position.x = (float)j * (aWidth / aResolutionWidth) - aWidth * 0.5f;
 			vertex.position.y = 0.0f;
-			vertex.position.z = (float)j * (aHeight / aResolutionHeight) - aHeight * 0.5f;
+			vertex.position.z = (float)i * (aHeight / aResolutionHeight) - aHeight * 0.5f;
 			vertex.position.w = 1.0f;
 			vertex.color.x = 1.0f;
 			vertex.color.y = 1.0f;
 			vertex.color.z = 1.0f;
 			vertex.color.w = 1.0f;
-			vertex.uv.x = (float)(i / (float)aResolutionWidth);
-			vertex.uv.y = (float)(j / (float)aResolutionHeight);
+			vertex.uv.x = (float)(j / (float)aResolutionWidth);
+			vertex.uv.y = (float)(i / (float)aResolutionHeight);
 
 			// Sample texture
 			{
@@ -204,12 +204,12 @@ bool Mesh::InitPlane(ID3D11Device* aDevice, const char* aVertexShaderPath, const
 				(j + 1) * aResolutionWidth + i,
 			};
 
-			indices.push_back(face[2]);
+			indices.push_back(face[0]);
 			indices.push_back(face[1]);
-			indices.push_back(face[0]);
 			indices.push_back(face[2]);
-			indices.push_back(face[0]);
+			indices.push_back(face[2]);
 			indices.push_back(face[3]);
+			indices.push_back(face[0]);
 		}
 	}
 

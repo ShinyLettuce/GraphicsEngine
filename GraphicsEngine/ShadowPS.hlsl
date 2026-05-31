@@ -21,13 +21,9 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
             return 1.0f;
         }
     
-        return uv;
-        
         float h0 = aTexture.Sample(aSampler, uv).r * 16.0f;
         
-        return frac(h0);
-        
-        ro.y = h0;
+        ro.y = h0 + 0.1f;
     }
     
     float3 rd = normalize(-float3(-1.0f, -0.3f, 0.0f));

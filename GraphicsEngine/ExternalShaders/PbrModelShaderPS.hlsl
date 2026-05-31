@@ -122,8 +122,8 @@ PixelOutput main(PixelInputType input)
     
     result.color.r += (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r) * 0.5f;
     
-    result.color = 0.0f;
-    result.color.rg = scaledUV;
+    //result.color = 0.0f;
+    //result.color.rg = scaledUV;
     
     return result;
 }
