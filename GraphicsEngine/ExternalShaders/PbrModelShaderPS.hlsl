@@ -100,7 +100,7 @@ PixelOutput main(PixelInputType input)
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = float3(0.6f, 0.45f, 0.3f);
-    float3 DirectionalLightTransform = normalize(float3(-1.0f, 0.3f, -0.0f)); // flip xz plane???
+    float3 DirectionalLightTransform = normalize(float3(1.0f, 0.3f, 0.0f));
     
     if (DirectionalLightSoftness == 0.0f)
     {
