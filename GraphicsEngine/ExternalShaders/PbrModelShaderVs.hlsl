@@ -13,9 +13,9 @@ PixelInputType main(VertexInputType input)
     float4 vertexViewPos = mul(worldToClipMatrix, vertexWorldPos);
 	
     float3x3 toWorldRotation = (float3x3)modelToWorldMatrix;
-	float3 vertexWorldNormal = mul(toWorldRotation, input.normal);
-	float3 vertexWorldBinormal = mul(toWorldRotation, input.bitangent);
-	float3 vertexWorldTangent = mul(toWorldRotation, input.tangent);
+    float3 vertexWorldNormal = normalize(mul(toWorldRotation, input.normal));
+    float3 vertexWorldBinormal = normalize(mul(toWorldRotation, input.bitangent));
+    float3 vertexWorldTangent = normalize(mul(toWorldRotation, input.tangent));
 	
     result.screenPosition = vertexViewPos;
 	result.worldPosition = vertexWorldPos;

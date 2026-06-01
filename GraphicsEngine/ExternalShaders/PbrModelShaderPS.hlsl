@@ -45,7 +45,7 @@ PixelOutput main(PixelInputType input)
     float3 toEye = normalize(eyePosition - input.worldPosition.xyz);
     
     float slopeBlend = smoothstep(0.7f, 1.0f, input.normal.y);
-    float heightBlend = smoothstep(-0.05f, 1.4f, input.worldPosition.y);
+    float heightBlend = smoothstep(0.0f, 1.5f, input.worldPosition.y);
     
     float4 grassAlbedo = aGrassTexture.Sample(aSampler, scaledUV);
     float4 rockAlbedo = aRockTexture.Sample(aSampler, scaledUV);
