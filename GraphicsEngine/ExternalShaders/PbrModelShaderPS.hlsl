@@ -106,13 +106,13 @@ PixelOutput main(PixelInputType input)
     {
         directionalLight = EvaluateDirectionalLight(
 			diffuseColor, specularColor, pixelNormal, roughness,
-			DirectionalLightColor, DirectionalLightTransform, -toEye);
+			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
     else
     {
         directionalLight = EvaluateSoftDirectionalLight(
 			diffuseColor, specularColor, pixelNormal, roughness, DirectionalLightSoftness,
-			DirectionalLightColor, DirectionalLightTransform, -toEye);
+			DirectionalLightColor, DirectionalLightTransform, toEye);
     }
 	
     float3 radiance = (directionalLight * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).g) + ambiance * (1.0f - aShadowTexture.Sample(aSampler, scaledUV).r));
