@@ -100,7 +100,7 @@ PixelOutput main(PixelInputType input)
 
     float DirectionalLightSoftness = 0.0f;
     float3 DirectionalLightColor = float3(0.6f, 0.45f, 0.3f);
-    float3 DirectionalLightTransform = normalize(float3(1.0f, 0.3f, 0.0f));
+    float3 DirectionalLightTransform = normalize(float3(1.0f, -0.3f, 0.0f));
     
     if (DirectionalLightSoftness == 0.0f)
     {
@@ -121,8 +121,8 @@ PixelOutput main(PixelInputType input)
     result.color.a = albedo.a;
     
     //result.color = 0.0f;
-    //result.color.g += aShadowTexture.Sample(aSampler, scaledUV).g * 0.25f;
-    //result.color.r += aShadowTexture.Sample(aSampler, scaledUV).r;
+    //result.color.g = aShadowTexture.Sample(aSampler, scaledUV).g;
+    //result.color.r = aShadowTexture.Sample(aSampler, scaledUV).r;
     
     return result;
 }

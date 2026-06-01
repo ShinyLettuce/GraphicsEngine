@@ -86,11 +86,9 @@ float2 main(ShadowPixelInputType input) : SV_TARGET
         for (int i = 0; i < AO_SAMPLE_COUNT; ++i)
         {
             float3 rd = normalize(FibonacciSphere(i, AO_SAMPLE_COUNT));
-            ao += RayMarch(ro, rd, 0.1f, 0.7f, 0.01f);
+            ao += RayMarch(ro, rd, 0.01f, 0.1f, 0.01f);
         }
-        
-        ao /= AO_SAMPLE_COUNT;
-        ao = saturate(ao * ao * ao * ao);
+        ao = saturate(ao / AO_SAMPLE_COUNT * 0.5f);
     }
 
     color.r = ao;
